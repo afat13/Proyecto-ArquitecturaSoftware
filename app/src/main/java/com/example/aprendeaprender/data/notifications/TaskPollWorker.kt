@@ -8,10 +8,9 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.example.aprendeaprender.data.api.ApiClient
+import com.example.aprendeaprender.data.api.SessionStore
 import com.example.aprendeaprender.data.auth.UtadeoCredentialsStore
-import com.example.aprendeaprender.data.remote.FirebaseAuthService
-import com.example.aprendeaprender.data.remote.RealtimeSubjectService
-import com.example.aprendeaprender.data.remote.RealtimeTaskService
 import com.example.aprendeaprender.data.repository.SubjectRepository
 import com.example.aprendeaprender.data.repository.TaskRepository
 import com.example.aprendeaprender.data.repository.UtadeoRepository
@@ -23,28 +22,33 @@ class TaskPollWorker(
 ) : CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
-        val store = UtadeoCredentialsStore(applicationContext)
-        val creds = store.obtener() ?: run {
-            android.util.Log.d(TAG, "Sin credenciales, salto")
+        val credentialsStore = UtadeoCredentialsStore(applicationContext)
+        val creds = credentialsStore.obtener() ?: run {
+            android.util.Log.d(TAG, "Sin credenciales UTADEO, se omite sincronización")
             return Result.success()
         }
+
+        val sessionStore = SessionStore(applicationContext)
+        if (!sessionStore.hasSession()) {
+            android.util.Log.d(TAG, "Sin sesión del backend, se omite sincronización")
+            return Result.success()
+        }
+
         val seenStore = SeenTasksStore(applicationContext)
 
         return try {
+            val api = ApiClient.create(sessionStore)
             val utadeoRepo = UtadeoRepository()
-            val authService = FirebaseAuthService()
-            val subjectRepo = SubjectRepository(authService, RealtimeSubjectService())
-            val taskRepo = TaskRepository(authService, RealtimeTaskService())
+            val subjectRepo = SubjectRepository(api, sessionStore)
+            val taskRepo = TaskRepository(api, sessionStore)
 
-            android.util.Log.d(TAG, "Iniciando sync diario...")
+            android.util.Log.d(TAG, "Iniciando sincronización diaria...")
             val resultado = utadeoRepo.sincronizarTodo(creds.usuario, creds.contrasena)
-            android.util.Log.d(TAG, "Scrape OK: ${resultado.cursos.size} cursos, ${resultado.tareas.size} tareas")
+            android.util.Log.d(TAG, "UTADEO OK: ${resultado.cursos.size} cursos, ${resultado.tareas.size} tareas")
 
-            // Guardar en Firebase (igual que el sync manual)
             subjectRepo.sincronizarDesdeUtadeo(resultado.cursos, resultado.participantesPorCurso)
             taskRepo.sincronizarTareasUtadeo(resultado.cursos, resultado.tareas)
 
-            // Detectar tareas nuevas
             val primeraEjecucion = !seenStore.estaInicializado()
             val cursosPorId = resultado.cursos.associateBy { it.id }
             var nuevas = 0
@@ -69,14 +73,14 @@ class TaskPollWorker(
 
             if (primeraEjecucion) {
                 seenStore.marcarInicializado()
-                android.util.Log.d(TAG, "Primera ejecución: marcadas ${resultado.tareas.size} tareas como vistas, sin notificar")
+                android.util.Log.d(TAG, "Primera ejecución: ${resultado.tareas.size} tareas marcadas como vistas")
             } else {
-                android.util.Log.d(TAG, "Sync diario OK. Tareas nuevas notificadas: $nuevas")
+                android.util.Log.d(TAG, "Sincronización finalizada. Tareas nuevas notificadas: $nuevas")
             }
 
             Result.success()
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Error en sync: ${e.message}", e)
+            android.util.Log.e(TAG, "Error en sincronización: ${e.message}", e)
             Result.retry()
         }
     }
@@ -90,25 +94,15 @@ class TaskPollWorker(
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
-            val request = PeriodicWorkRequestBuilder<TaskPollWorker>(
-                24, TimeUnit.HOURS
-            ).setConstraints(constraints).build()
+            val request = PeriodicWorkRequestBuilder<TaskPollWorker>(24, TimeUnit.HOURS)
+                .setConstraints(constraints)
+                .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
                 request
             )
-
-            val oneShot = androidx.work.OneTimeWorkRequestBuilder<TaskPollWorker>()
-                .setConstraints(constraints)
-                .build()
-            WorkManager.getInstance(context).enqueueUniqueWork(
-                "${WORK_NAME}_now",
-                androidx.work.ExistingWorkPolicy.REPLACE,
-                oneShot
-            )
-            android.util.Log.d(TAG, "Worker registrado (periodic 24h + one-shot inmediato)")
         }
     }
 }
