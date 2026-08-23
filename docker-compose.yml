@@ -34,5 +34,20 @@ services:
       timeout: 5s
       retries: 10
 
+  k6:
+    image: grafana/k6:0.54.0
+    profiles: ["load"]
+    environment:
+      BASE_URL: http://api:8080
+      VUS: ${K6_VUS:-30}
+      DURATION: ${K6_DURATION:-60s}
+    volumes:
+      - ./experimentos/consulta-tareas:/work
+    working_dir: /work
+    depends_on:
+      api:
+        condition: service_healthy
+    entrypoint: ["k6"]
+
 volumes:
   postgres_data:
