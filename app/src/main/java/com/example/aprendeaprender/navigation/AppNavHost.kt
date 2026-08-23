@@ -1,7 +1,5 @@
 package com.example.aprendeaprender.navigation
 
-
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,13 +37,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.aprendeaprender.data.ai.ChallengeQuestionCache
 import com.example.aprendeaprender.data.ai.GemmaModelManager
+import com.example.aprendeaprender.data.api.ApiClient
+import com.example.aprendeaprender.data.api.SessionStore
 import com.example.aprendeaprender.data.auth.UtadeoCredentialsStore
-import com.example.aprendeaprender.data.remote.FirebaseAuthService
-import com.example.aprendeaprender.data.remote.FirestoreUserService
 import com.example.aprendeaprender.data.remote.GemmaChallengeService
-import com.example.aprendeaprender.data.remote.RealtimeChallengeService
-import com.example.aprendeaprender.data.remote.RealtimeSubjectService
-import com.example.aprendeaprender.data.remote.RealtimeTaskService
 import com.example.aprendeaprender.data.repository.AuthRepository
 import com.example.aprendeaprender.data.repository.ChallengeRepository
 import com.example.aprendeaprender.data.repository.ChatRepository
@@ -121,58 +116,36 @@ fun AppNavHost() {
     val showBottomNav = currentRoute in bottomNavRoutes
     val showFab = currentRoute in fabRoutes
 
-    val authService = remember { FirebaseAuthService() }
-    val firestoreUserService = remember { FirestoreUserService() }
-    val subjectService = remember { RealtimeSubjectService() }
-    val taskService = remember { RealtimeTaskService() }
-    val challengeService = remember { RealtimeChallengeService() }
+    val sessionStore = remember { SessionStore(context.applicationContext) }
+    val apiService = remember { ApiClient.create(sessionStore) }
     val gemmaModelManager = remember { GemmaModelManager(context.applicationContext) }
     val gemmaChallengeService = remember { GemmaChallengeService(gemmaModelManager) }
     val credentialsStore = remember { UtadeoCredentialsStore(context) }
-    val questionCache = remember {
-        ChallengeQuestionCache(context.applicationContext)
-    }
+    val questionCache = remember { ChallengeQuestionCache(context.applicationContext) }
 
     LaunchedEffect(gemmaModelManager) {
         gemmaModelManager.prepararEnSegundoPlano()
     }
 
     val authRepository = remember {
-        AuthRepository(
-            authService = authService,
-            userService = firestoreUserService
-        )
+        AuthRepository(api = apiService, sessionStore = sessionStore)
     }
-
     val profileRepository = remember {
-        ProfileRepository(
-            authService = authService,
-            userService = firestoreUserService
-        )
+        ProfileRepository(api = apiService, sessionStore = sessionStore)
     }
-
     val subjectRepository = remember {
-        SubjectRepository(
-            authService = authService,
-            subjectService = subjectService
-        )
+        SubjectRepository(api = apiService, sessionStore = sessionStore)
     }
-
     val taskRepository = remember {
-        TaskRepository(
-            authService = authService,
-            taskService = taskService
-        )
+        TaskRepository(api = apiService, sessionStore = sessionStore)
     }
-
     val chatRepository = remember { ChatRepository() }
-
     val challengeRepository = remember {
         ChallengeRepository(
-            authService = authService,
-            realtimeChallengeService = challengeService,
-            subjectService = subjectService,
-            taskService = taskService,
+            api = apiService,
+            sessionStore = sessionStore,
+            subjectRepository = subjectRepository,
+            taskRepository = taskRepository,
             gemmaChallengeService = gemmaChallengeService,
             questionCache = questionCache
         )
@@ -180,73 +153,61 @@ fun AppNavHost() {
 
     val authViewModel: AuthViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return AuthViewModel(authRepository) as T
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            AuthViewModel(authRepository) as T
     })
 
     val profileViewModel: ProfileViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ProfileViewModel(profileRepository) as T
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            ProfileViewModel(profileRepository) as T
     })
 
     val homeViewModel: HomeViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HomeViewModel(
-                profileRepository = profileRepository,
-                taskRepository = taskRepository
-            ) as T
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            HomeViewModel(profileRepository = profileRepository, taskRepository = taskRepository) as T
     })
 
     val subjectViewModel: SubjectViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return SubjectViewModel(subjectRepository) as T
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            SubjectViewModel(subjectRepository) as T
     })
 
     val taskViewModel: TaskViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return TaskViewModel(taskRepository, subjectRepository) as T
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            TaskViewModel(taskRepository, subjectRepository) as T
     })
 
     val challengeViewModel: ChallengeViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ChallengeViewModel(challengeRepository) as T
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            ChallengeViewModel(challengeRepository) as T
     })
 
     val utadeoViewModel: UtadeoViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return UtadeoViewModel(
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            UtadeoViewModel(
                 utadeoRepository = UtadeoRepository(),
                 subjectRepository = subjectRepository,
                 taskRepository = taskRepository,
                 credentialsStore = credentialsStore
             ) as T
-        }
     })
 
     val subjectDetailViewModel: SubjectDetailViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return SubjectDetailViewModel(subjectRepository, taskRepository) as T
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            SubjectDetailViewModel(subjectRepository, taskRepository) as T
     })
 
     val chatViewModel: ChatViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ChatViewModel(chatRepository, credentialsStore) as T
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            ChatViewModel(chatRepository, credentialsStore) as T
     })
 
     val loginUiState by authViewModel.loginUiState.collectAsState()
@@ -258,54 +219,34 @@ fun AppNavHost() {
     var precargaRetosIniciada by remember { mutableStateOf(false) }
 
     LaunchedEffect(modelUiState.listo) {
-        if (
-            modelUiState.listo &&
-            authService.currentUser() != null &&
-            !precargaRetosIniciada
-        ) {
+        if (modelUiState.listo && sessionStore.hasSession() && !precargaRetosIniciada) {
             precargaRetosIniciada = true
             challengeViewModel.cargarRetoPorMaterias()
         }
     }
 
-
     LaunchedEffect(authViewModel) {
         authViewModel.authEvents.collect { event ->
             when (event) {
-                AuthEvent.NavigateToHome -> {
-                    navController.navigateClearingStack(Routes.HOME)
-                }
-
+                AuthEvent.NavigateToHome -> navController.navigateClearingStack(Routes.HOME)
                 AuthEvent.NavigateToLogin -> {
                     precargaRetosIniciada = false
                     navController.navigateClearingStack(Routes.LOGIN)
                 }
-
-                AuthEvent.NavigateToVerifyEmail -> {
-                    navController.navigateClearingStack(Routes.VERIFY_EMAIL)
-                }
-
+                AuthEvent.NavigateToVerifyEmail -> navController.navigateClearingStack(Routes.VERIFY_EMAIL)
                 AuthEvent.NavigateToResetPasswordEmailSent -> {
-                    navController.navigate(Routes.RESET_PASSWORD_EMAIL_SENT) {
-                        launchSingleTop = true
-                    }
+                    navController.navigate(Routes.RESET_PASSWORD_EMAIL_SENT) { launchSingleTop = true }
                 }
-
-                is AuthEvent.ShowSnackbar -> {
-                    snackbarHostState.showSnackbar(
-                        message = context.getString(event.messageResId)
-                    )
-                }
+                is AuthEvent.ShowSnackbar -> snackbarHostState.showSnackbar(
+                    message = context.getString(event.messageResId)
+                )
             }
         }
     }
 
     val abrirModuloRetos = {
         gemmaModelManager.prepararEnSegundoPlano()
-
-        navController.navigate(Routes.CHALLENGE_DAILY) {
-            launchSingleTop = true
-        }
+        navController.navigate(Routes.CHALLENGE_DAILY) { launchSingleTop = true }
     }
 
     val selectedBottomNav = when (currentRoute) {
@@ -313,9 +254,7 @@ fun AppNavHost() {
         Routes.SUBJECT_LIST -> BottomNavDestination.SUBJECTS
         Routes.TASK_LIST -> BottomNavDestination.TASKS
         Routes.CHAT_INBOX -> BottomNavDestination.CHAT
-        Routes.CHALLENGE_DAILY,
-        Routes.CHALLENGE_SUBJECTS,
-        Routes.CHALLENGE_QUIZ -> BottomNavDestination.CHALLENGES
+        Routes.CHALLENGE_DAILY, Routes.CHALLENGE_SUBJECTS, Routes.CHALLENGE_QUIZ -> BottomNavDestination.CHALLENGES
         Routes.PROFILE -> BottomNavDestination.PROFILE
         else -> BottomNavDestination.HOME
     }
@@ -329,40 +268,15 @@ fun AppNavHost() {
                     selectedDestination = selectedBottomNav,
                     onDestinationSelected = { destination ->
                         when (destination) {
-                            BottomNavDestination.HOME -> {
-                                navController.navigate(Routes.HOME) {
-                                    popUpTo(Routes.HOME) { inclusive = false }
-                                    launchSingleTop = true
-                                }
+                            BottomNavDestination.HOME -> navController.navigate(Routes.HOME) {
+                                popUpTo(Routes.HOME) { inclusive = false }
+                                launchSingleTop = true
                             }
-
-                            BottomNavDestination.SUBJECTS -> {
-                                navController.navigate(Routes.SUBJECT_LIST) {
-                                    launchSingleTop = true
-                                }
-                            }
-
-                            BottomNavDestination.TASKS -> {
-                                navController.navigate(Routes.TASK_LIST) {
-                                    launchSingleTop = true
-                                }
-                            }
-
-                            BottomNavDestination.CHAT -> {
-                                navController.navigate(Routes.CHAT_INBOX) {
-                                    launchSingleTop = true
-                                }
-                            }
-
-                            BottomNavDestination.CHALLENGES -> {
-                                abrirModuloRetos()
-                            }
-
-                            BottomNavDestination.PROFILE -> {
-                                navController.navigate(Routes.PROFILE) {
-                                    launchSingleTop = true
-                                }
-                            }
+                            BottomNavDestination.SUBJECTS -> navController.navigate(Routes.SUBJECT_LIST) { launchSingleTop = true }
+                            BottomNavDestination.TASKS -> navController.navigate(Routes.TASK_LIST) { launchSingleTop = true }
+                            BottomNavDestination.CHAT -> navController.navigate(Routes.CHAT_INBOX) { launchSingleTop = true }
+                            BottomNavDestination.CHALLENGES -> abrirModuloRetos()
+                            BottomNavDestination.PROFILE -> navController.navigate(Routes.PROFILE) { launchSingleTop = true }
                         }
                     }
                 )
@@ -376,16 +290,11 @@ fun AppNavHost() {
                             Routes.TASK_LIST -> {
                                 taskViewModel.resetCreateForm()
                                 taskViewModel.cargarMaterias()
-                                navController.navigate(Routes.CREATE_TASK) {
-                                    launchSingleTop = true
-                                }
+                                navController.navigate(Routes.CREATE_TASK) { launchSingleTop = true }
                             }
-
                             Routes.SUBJECT_LIST -> {
                                 subjectViewModel.resetCreateForm()
-                                navController.navigate(Routes.CREATE_SUBJECT) {
-                                    launchSingleTop = true
-                                }
+                                navController.navigate(Routes.CREATE_SUBJECT) { launchSingleTop = true }
                             }
                         }
                     },
@@ -393,10 +302,7 @@ fun AppNavHost() {
                     contentColor = Color(0xFF0D1B2A),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Agregar"
-                    )
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar")
                 }
             }
         }
@@ -411,7 +317,6 @@ fun AppNavHost() {
                     delay(1200)
                     authViewModel.verificarSesion()
                 }
-
                 SplashScreen()
             }
 
@@ -424,16 +329,8 @@ fun AppNavHost() {
                     onEmailChange = authViewModel::onLoginCorreoChange,
                     onPasswordChange = authViewModel::onLoginContrasenaChange,
                     onLoginClick = authViewModel::iniciarSesion,
-                    onForgotPasswordClick = {
-                        navController.navigate(Routes.FORGOT_PASSWORD) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onRegisterClick = {
-                        navController.navigate(Routes.REGISTER) {
-                            launchSingleTop = true
-                        }
-                    }
+                    onForgotPasswordClick = { navController.navigate(Routes.FORGOT_PASSWORD) { launchSingleTop = true } },
+                    onRegisterClick = { navController.navigate(Routes.REGISTER) { launchSingleTop = true } }
                 )
             }
 
@@ -486,65 +383,36 @@ fun AppNavHost() {
             composable(Routes.RESET_PASSWORD_EMAIL_SENT) {
                 ResetPasswordEmailSentScreen(
                     correo = forgotPasswordUiState.correoEnviadoA,
-                    onVolverLoginClick = {
-                        navController.navigateClearingStack(Routes.LOGIN)
-                    }
+                    onVolverLoginClick = { navController.navigateClearingStack(Routes.LOGIN) }
                 )
             }
 
             composable(Routes.HOME) {
                 val homeUiState by homeViewModel.uiState.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    homeViewModel.cargarDatosHome()
-                }
-
+                LaunchedEffect(Unit) { homeViewModel.cargarDatosHome() }
                 val lifecycleOwner = LocalLifecycleOwner.current
-
                 DisposableEffect(lifecycleOwner) {
                     val observer = LifecycleEventObserver { _, event ->
-                        if (event == Lifecycle.Event.ON_RESUME) {
-                            homeViewModel.cargarDatosHome()
-                        }
+                        if (event == Lifecycle.Event.ON_RESUME) homeViewModel.cargarDatosHome()
                     }
-
                     lifecycleOwner.lifecycle.addObserver(observer)
-
-                    onDispose {
-                        lifecycleOwner.lifecycle.removeObserver(observer)
-                    }
+                    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                 }
-
                 HomeRoute(
                     uiState = homeUiState,
-                    onNavigateToProfile = {
-                        navController.navigate(Routes.PROFILE) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onNavigateToSubjects = {
-                        navController.navigate(Routes.SUBJECT_LIST) {
-                            launchSingleTop = true
-                        }
-                    },
-                    onNavigateToTasks = {
-                        navController.navigate(Routes.TASK_LIST) {
-                            launchSingleTop = true
-                        }
-                    },
+                    onNavigateToProfile = { navController.navigate(Routes.PROFILE) { launchSingleTop = true } },
+                    onNavigateToSubjects = { navController.navigate(Routes.SUBJECT_LIST) { launchSingleTop = true } },
+                    onNavigateToTasks = { navController.navigate(Routes.TASK_LIST) { launchSingleTop = true } },
                     onNavigateToChallenges = abrirModuloRetos,
                     onEnrollSubjectClick = {
                         subjectViewModel.resetCreateForm()
-                        navController.navigate(Routes.CREATE_SUBJECT) {
-                            launchSingleTop = true
-                        }
+                        navController.navigate(Routes.CREATE_SUBJECT) { launchSingleTop = true }
                     }
                 )
             }
 
             composable(Routes.CHALLENGE_DAILY) {
                 val dailyUiState by challengeViewModel.dailyUiState.collectAsState()
-
                 if (!modelUiState.listo) {
                     AiModelDownloadScreen(
                         modelManager = gemmaModelManager,
@@ -554,17 +422,12 @@ fun AppNavHost() {
                         }
                     )
                 } else {
-                    LaunchedEffect(Unit) {
-                        challengeViewModel.cargarRetoDiario()
-                    }
-
+                    LaunchedEffect(Unit) { challengeViewModel.cargarRetoDiario() }
                     ChallengeDailyScreen(
                         uiState = dailyUiState,
                         onOpenSubjects = {
                             challengeViewModel.cargarRetoPorMaterias()
-                            navController.navigate(Routes.CHALLENGE_SUBJECTS) {
-                                launchSingleTop = true
-                            }
+                            navController.navigate(Routes.CHALLENGE_SUBJECTS) { launchSingleTop = true }
                         }
                     )
                 }
@@ -572,18 +435,12 @@ fun AppNavHost() {
 
             composable(Routes.CHALLENGE_SUBJECTS) {
                 val subjectUiState by challengeViewModel.subjectUiState.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    challengeViewModel.cargarRetoPorMaterias()
-                }
-
+                LaunchedEffect(Unit) { challengeViewModel.cargarRetoPorMaterias() }
                 ChallengeSubjectScreen(
                     uiState = subjectUiState,
                     onSubjectClick = { subject ->
                         challengeViewModel.seleccionarMateria(subject)
-                        navController.navigate(Routes.CHALLENGE_QUIZ) {
-                            launchSingleTop = true
-                        }
+                        navController.navigate(Routes.CHALLENGE_QUIZ) { launchSingleTop = true }
                     },
                     onBackClick = {
                         challengeViewModel.cargarRetoDiario()
@@ -594,7 +451,6 @@ fun AppNavHost() {
 
             composable(Routes.CHALLENGE_QUIZ) {
                 val subjectUiState by challengeViewModel.subjectUiState.collectAsState()
-
                 ChallengeQuizScreen(
                     uiState = subjectUiState,
                     onAnswerSelected = challengeViewModel::seleccionarRespuesta,
@@ -619,7 +475,6 @@ fun AppNavHost() {
 
             composable(Routes.CREATE_SUBJECT) {
                 val createUiState by subjectViewModel.createUiState.collectAsState()
-
                 LaunchedEffect(createUiState.materiaCreada) {
                     if (createUiState.materiaCreada) {
                         navController.navigate(Routes.SUBJECT_SUCCESS) {
@@ -628,7 +483,6 @@ fun AppNavHost() {
                         }
                     }
                 }
-
                 CreateSubjectScreen(
                     uiState = createUiState,
                     onAsignaturaChange = subjectViewModel::onAsignaturaChange,
@@ -661,22 +515,14 @@ fun AppNavHost() {
 
             composable(Routes.SUBJECT_LIST) {
                 val listUiState by subjectViewModel.listUiState.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    subjectViewModel.cargarMaterias()
-                }
-
+                LaunchedEffect(Unit) { subjectViewModel.cargarMaterias() }
                 SubjectListScreen(
                     uiState = listUiState,
                     onDeleteClick = subjectViewModel::eliminarMateria,
-                    onSubjectClick = { subject ->
-                        navController.navigate("subject_detail/${subject.id}")
-                    },
+                    onSubjectClick = { subject -> navController.navigate("subject_detail/${subject.id}") },
                     onImportUtadeoClick = {
                         utadeoViewModel.resetear()
-                        navController.navigate(Routes.UTADEO_SYNC) {
-                            launchSingleTop = true
-                        }
+                        navController.navigate(Routes.UTADEO_SYNC) { launchSingleTop = true }
                     },
                     onBackClick = { navController.popBackStack() }
                 )
@@ -684,19 +530,11 @@ fun AppNavHost() {
 
             composable(
                 route = Routes.SUBJECT_DETAIL,
-                arguments = listOf(
-                    navArgument("subjectId") {
-                        type = NavType.StringType
-                    }
-                )
+                arguments = listOf(navArgument("subjectId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val subjectId = backStackEntry.arguments?.getString("subjectId").orEmpty()
                 val detailState by subjectDetailViewModel.uiState.collectAsState()
-
-                LaunchedEffect(subjectId) {
-                    subjectDetailViewModel.cargar(subjectId)
-                }
-
+                LaunchedEffect(subjectId) { subjectDetailViewModel.cargar(subjectId) }
                 SubjectDetailScreen(
                     uiState = detailState,
                     onBackClick = { navController.popBackStack() }
@@ -705,32 +543,19 @@ fun AppNavHost() {
 
             composable(Routes.TASK_LIST) {
                 val taskListUiState by taskViewModel.listUiState.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    taskViewModel.cargarTareas()
-                }
-
+                LaunchedEffect(Unit) { taskViewModel.cargarTareas() }
                 TaskListScreen(
                     uiState = taskListUiState,
                     onEstadoChange = { subjectId, taskId, estado ->
-                        taskViewModel.cambiarEstado(
-                            subjectId = subjectId,
-                            taskId = taskId,
-                            estado = estado
-                        )
+                        taskViewModel.cambiarEstado(subjectId = subjectId, taskId = taskId, estado = estado)
                     },
                     onDeleteClick = { subjectId, taskId ->
-                        taskViewModel.eliminarTarea(
-                            subjectId = subjectId,
-                            taskId = taskId
-                        )
+                        taskViewModel.eliminarTarea(subjectId = subjectId, taskId = taskId)
                     },
                     onAddTaskClick = {
                         taskViewModel.resetCreateForm()
                         taskViewModel.cargarMaterias()
-                        navController.navigate(Routes.CREATE_TASK) {
-                            launchSingleTop = true
-                        }
+                        navController.navigate(Routes.CREATE_TASK) { launchSingleTop = true }
                     },
                     onBackClick = { navController.popBackStack() }
                 )
@@ -738,11 +563,7 @@ fun AppNavHost() {
 
             composable(Routes.CREATE_TASK) {
                 val createUiState by taskViewModel.createUiState.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    taskViewModel.cargarMaterias()
-                }
-
+                LaunchedEffect(Unit) { taskViewModel.cargarMaterias() }
                 LaunchedEffect(createUiState.tareaCreada) {
                     if (createUiState.tareaCreada) {
                         navController.navigate(Routes.TASK_LIST) {
@@ -751,7 +572,6 @@ fun AppNavHost() {
                         }
                     }
                 }
-
                 CreateTaskScreen(
                     uiState = createUiState,
                     onTituloChange = taskViewModel::onTituloChange,
@@ -767,7 +587,6 @@ fun AppNavHost() {
 
             composable(Routes.UTADEO_SYNC) {
                 val utadeoUiState by utadeoViewModel.uiState.collectAsState()
-
                 PruebaScreen(
                     uiState = utadeoUiState,
                     onUsuarioChange = utadeoViewModel::onUsuarioChange,
@@ -781,50 +600,28 @@ fun AppNavHost() {
             composable(Routes.CHAT_INBOX) {
                 val state by chatViewModel.inboxState.collectAsState()
                 val lifecycleOwner = LocalLifecycleOwner.current
-
                 DisposableEffect(lifecycleOwner) {
                     val observer = LifecycleEventObserver { _, event ->
-                        if (event == Lifecycle.Event.ON_RESUME) {
-                            chatViewModel.cargarBandeja()
-                        }
+                        if (event == Lifecycle.Event.ON_RESUME) chatViewModel.cargarBandeja()
                     }
-
                     lifecycleOwner.lifecycle.addObserver(observer)
-
-                    onDispose {
-                        lifecycleOwner.lifecycle.removeObserver(observer)
-                    }
+                    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
                 }
-
                 ChatInboxScreen(
                     uiState = state,
-                    onConversationClick = { convId ->
-                        navController.navigate("chat_conversation/$convId")
-                    },
-                    onSyncClick = {
-                        navController.navigate(Routes.UTADEO_SYNC) {
-                            launchSingleTop = true
-                        }
-                    },
+                    onConversationClick = { convId -> navController.navigate("chat_conversation/$convId") },
+                    onSyncClick = { navController.navigate(Routes.UTADEO_SYNC) { launchSingleTop = true } },
                     onBackClick = { navController.popBackStack() }
                 )
             }
 
             composable(
                 route = Routes.CHAT_CONVERSATION,
-                arguments = listOf(
-                    navArgument("conversationId") {
-                        type = NavType.LongType
-                    }
-                )
+                arguments = listOf(navArgument("conversationId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val convId = backStackEntry.arguments?.getLong("conversationId") ?: 0L
                 val state by chatViewModel.conversationState.collectAsState()
-
-                LaunchedEffect(convId) {
-                    chatViewModel.abrirConversacion(convId)
-                }
-
+                LaunchedEffect(convId) { chatViewModel.abrirConversacion(convId) }
                 ChatConversationScreen(
                     uiState = state,
                     onInputChange = chatViewModel::onInputChange,
