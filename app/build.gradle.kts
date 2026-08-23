@@ -25,11 +25,13 @@ android {
         }
 
         val Apis = escapedProperty("APIS")
+        val apiBaseUrl = escapedProperty("API_BASE_URL").ifBlank { "http://10.0.2.2:8080/" }
         val gemmaModelSizeBytes = (project.findProperty("GEMMA_MODEL_SIZE_BYTES") as? String)
             ?.toLongOrNull()
             ?: 0L
 
         buildConfigField("String", "APIS", "\"$Apis\"")
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
         buildConfigField("String", "OPENROUTER_MODEL", "\"openrouter/free\"")
 
         buildConfigField("String", "GEMMA_MODEL_URL", "\"${escapedProperty("GEMMA_MODEL_URL")}\"")
@@ -60,15 +62,15 @@ android {
 }
 
 dependencies {
-    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
     implementation("androidx.compose.material:material-icons-extended")
     implementation(platform("androidx.compose:compose-bom:2024.02.01"))
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
-    implementation("androidx.work:work-runtime-ktx:2.11.2")
-    implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("org.jsoup:jsoup:1.17.2")
     implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
     implementation("com.google.firebase:firebase-auth")
