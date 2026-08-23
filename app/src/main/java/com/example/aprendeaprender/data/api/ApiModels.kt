@@ -45,6 +45,16 @@ data class SubjectResponse(
     val createdAt: String
 )
 
+data class ParticipantRequest(val name: String, val role: String)
+data class ParticipantResponse(val name: String, val role: String)
+
+data class UtadeoSubjectRequest(
+    val utadeoId: Int,
+    val name: String,
+    val instructor: String,
+    val participants: List<ParticipantRequest> = emptyList()
+)
+
 data class TaskRequest(
     val subjectId: String,
     val title: String,
@@ -66,6 +76,15 @@ data class TaskResponse(
     val createdAt: String
 )
 
+data class UtadeoTaskRequest(
+    val assignmentId: Int,
+    val courseId: Int,
+    val title: String,
+    val description: String,
+    val dueDateMillis: Long,
+    val status: String
+)
+
 data class StatusRequest(val status: String)
 
 data class SubjectCompletionResponse(
@@ -80,4 +99,21 @@ data class DailyChallengeResponse(
     val totalSubjects: Int,
     val completed: Boolean,
     val subjects: List<SubjectCompletionResponse>
+)
+
+data class ChallengeQuestionRequest(
+    val question: String,
+    val options: List<String>,
+    val correctOption: Int,
+    val explanation: String
+)
+
+data class ChallengeQuestionResponse(
+    val id: String,
+    val subjectId: String,
+    val subjectName: String,
+    val question: String,
+    val options: List<String>,
+    val correctOption: Int,
+    val explanation: String
 )
