@@ -1,0 +1,97 @@
+name: Integración continua
+
+on:
+  push:
+    branches: [main, migracion-postgresql]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend y PostgreSQL
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: aprende_aprender
+          POSTGRES_USER: aprende
+          POSTGRES_PASSWORD: aprende_local
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aprende -d aprende_aprender"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/aprende_aprender
+      DB_USER: aprende
+      DB_PASSWORD: aprende_local
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Ejecutar pruebas del backend
+        run: gradle -p backend test --no-daemon
+
+      - name: Validar Docker Compose
+        run: docker compose config
+
+      - name: Publicar reportes si fallan las pruebas
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-backend
+          path: backend/build/reports/
+
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar plataforma Android 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Dar permisos al Gradle Wrapper
+        run: chmod +x gradlew
+
+      - name: Ejecutar pruebas unitarias
+        run: ./gradlew testDebugUnitTest --stacktrace
+
+      - name: Ejecutar análisis estático
+        run: ./gradlew lintDebug --stacktrace
+
+      - name: Compilar APK de depuración
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Publicar reportes si falla Android
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-android
+          path: |
+            app/build/reports/
+            app/build/outputs/
