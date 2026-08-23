@@ -1,23 +1,24 @@
 package com.example.aprendeaprender.data.repository
 
+import com.example.aprendeaprender.data.api.ApiService
+import com.example.aprendeaprender.data.api.SessionStore
+import com.example.aprendeaprender.data.api.UpdateProfileRequest
 import com.example.aprendeaprender.data.model.UserProfile
-import com.example.aprendeaprender.data.remote.FirebaseAuthService
-import com.example.aprendeaprender.data.remote.FirestoreUserService
 
 class ProfileRepository(
-    private val authService: FirebaseAuthService,
-    private val userService: FirestoreUserService = FirestoreUserService()
+    private val api: ApiService,
+    private val sessionStore: SessionStore
 ) {
-
-    private fun currentUserId(): String {
-        return authService.currentUser()?.uid
-            ?: throw IllegalStateException("No hay usuario autenticado.")
-    }
-
     suspend fun getProfile(): UserProfile {
-        val uid = currentUserId()
-        val email = authService.currentUser()?.email.orEmpty()
-        return userService.getUserProfile(uid, email)
+        val user = api.getProfile()
+        sessionStore.saveUser(user)
+        return UserProfile(
+            uid = user.id,
+            email = user.email,
+            nombre = user.firstName,
+            apellido = user.lastName,
+            telefono = user.phone.orEmpty()
+        )
     }
 
     suspend fun updateProfile(
@@ -25,19 +26,17 @@ class ProfileRepository(
         apellido: String,
         telefono: String
     ) {
-        val uid = currentUserId()
-        val email = authService.currentUser()?.email.orEmpty()
-        val profile = UserProfile(
-            uid = uid,
-            email = email,
-            nombre = nombre,
-            apellido = apellido,
-            telefono = telefono
+        val user = api.updateProfile(
+            UpdateProfileRequest(
+                firstName = nombre.trim(),
+                lastName = apellido.trim(),
+                phone = telefono.trim()
+            )
         )
-        userService.saveUserProfile(profile)
+        sessionStore.saveUser(user)
     }
 
     suspend fun createUserProfile(profile: UserProfile) {
-        userService.createUserProfile(profile)
+        updateProfile(profile.nombre, profile.apellido, profile.telefono)
     }
 }
