@@ -42,6 +42,7 @@ data class SubjectResponse(
     val name: String,
     val instructor: String?,
     val utadeoId: Int?,
+    val topics: List<String> = emptyList(),
     val createdAt: String
 )
 
