@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aprende_aprender}
+      POSTGRES_USER: ${POSTGRES_USER:-aprende}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aprende_local}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aprende} -d ${POSTGRES_DB:-aprende_aprender}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-aprende_aprender}
+      DB_USER: ${POSTGRES_USER:-aprende}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-aprende_local}
+      SESSION_HOURS: ${SESSION_HOURS:-24}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
