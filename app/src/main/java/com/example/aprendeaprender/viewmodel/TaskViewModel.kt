@@ -6,7 +6,7 @@ import com.example.aprendeaprender.R
 import com.example.aprendeaprender.data.model.Task
 import com.example.aprendeaprender.data.repository.SubjectRepository
 import com.example.aprendeaprender.data.repository.TaskRepository
-import com.google.firebase.FirebaseNetworkException
+import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,14 +44,12 @@ class TaskViewModel(
         }
     }
 
-    // ── Preseleccionar materia (desde SubjectSuccessScreen) ──
     fun preseleccionarMateria(subjectId: String, subjectName: String) {
         _createUiState.update {
             it.copy(subjectId = subjectId, subjectName = subjectName)
         }
     }
 
-    // ── Form handlers ──
     fun onTituloChange(value: String) {
         _createUiState.update { it.copy(titulo = value, mensajeErrorResId = null) }
     }
@@ -82,7 +80,6 @@ class TaskViewModel(
         }
     }
 
-    // ── Crear tarea ──
     fun crearTarea() {
         val state = _createUiState.value
 
@@ -130,7 +127,6 @@ class TaskViewModel(
         _createUiState.update { CreateTaskUiState() }
     }
 
-    // ── Cargar tareas ──
     fun cargarTareas() {
         _listUiState.update { it.copy(cargando = true, mensajeErrorResId = null) }
         viewModelScope.launch {
@@ -205,7 +201,6 @@ class TaskViewModel(
         }
     }
 
-    // ── Helpers ──
     private fun esHoy(): Calendar {
         return Calendar.getInstance(java.util.TimeZone.getTimeZone("America/Bogota")).apply {
             set(Calendar.HOUR_OF_DAY, 0)
@@ -224,9 +219,10 @@ class TaskViewModel(
                 cal.get(Calendar.MONTH) == hoy.get(Calendar.MONTH) &&
                 cal.get(Calendar.DAY_OF_MONTH) == hoy.get(Calendar.DAY_OF_MONTH)
     }
+
     private fun mapError(e: Exception): Int {
         return when (e) {
-            is FirebaseNetworkException -> R.string.auth_error_network
+            is IOException -> R.string.auth_error_network
             else -> R.string.auth_error_generic
         }
     }
