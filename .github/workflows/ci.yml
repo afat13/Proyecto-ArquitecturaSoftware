@@ -49,12 +49,20 @@ jobs:
       - name: Validar Docker Compose
         run: docker compose config
 
+      - name: Validar scripts del experimento
+        run: python -m py_compile experimentos/consulta-tareas/ejecutar_experimento.py experimentos/consulta-tareas/resumir_resultados.py
+
+      - name: Validar instrumento k6
+        run: docker run --rm -v "$PWD/experimentos/consulta-tareas:/work" -w /work grafana/k6:0.54.0 inspect carga.js
+
       - name: Publicar reportes si fallan las pruebas
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: reportes-backend
-          path: backend/build/reports/
+          path: |
+            backend/build/reports/
+            backend/build/test-results/
 
   android:
     name: Android
@@ -79,19 +87,31 @@ jobs:
         run: chmod +x gradlew
 
       - name: Ejecutar pruebas unitarias
-        run: ./gradlew testDebugUnitTest --stacktrace
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew testDebugUnitTest --stacktrace 2>&1 | tee gradle-pruebas-android.log
 
       - name: Ejecutar análisis estático
-        run: ./gradlew lintDebug --stacktrace
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew lintDebug --stacktrace 2>&1 | tee gradle-lint-android.log
 
       - name: Compilar APK de depuración
-        run: ./gradlew assembleDebug --stacktrace
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --stacktrace 2>&1 | tee gradle-compilacion-android.log
 
       - name: Publicar reportes si falla Android
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: reportes-android
+          if-no-files-found: warn
           path: |
+            gradle-*.log
             app/build/reports/
+            app/build/test-results/
             app/build/outputs/
