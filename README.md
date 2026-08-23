@@ -1,441 +1,215 @@
 # Aprende a Aprender
 
-<p align="center">
-  <img src="app/src/main/res/drawable/logo.png" alt="Logo de Aprende a Aprender" width="170" />
-</p>
+Aplicación móvil Android para organización académica y refuerzo del aprendizaje. Permite administrar materias y tareas, sincronizar información académica de UTADEO, recibir notificaciones y realizar retos de estudio generados con Gemma ejecutado localmente en el dispositivo.
 
-Aplicación móvil Android orientada a la organización académica y al refuerzo del aprendizaje. Permite administrar materias y tareas, consultar información académica, recibir notificaciones y realizar retos de estudio generados mediante un modelo de inteligencia artificial ejecutado localmente en el dispositivo.
+La persistencia principal utiliza PostgreSQL detrás de una API REST Spring Boot. Android no se conecta directamente a la base de datos y no contiene credenciales de PostgreSQL.
 
+## Arquitectura actual
 
+```text
+                         +-----------------------+
+                         |        UTADEO         |
+                         |   sistema externo     |
+                         +-----------+-----------+
+                                     |
+                                     | sincronización
+                                     v
++---------------------+    HTTP/JSON + Bearer    +-----------------------+
+|   Aplicación Android| ------------------------> | API Spring Boot       |
+| Kotlin + Compose    |                           | Java 21 / JDBC        |
+| WorkManager         | <------------------------ | Flyway / Security     |
++----------+----------+                           +-----------+-----------+
+           |                                                  |
+           | ejecución local                                  | JDBC
+           v                                                  v
++---------------------+                           +-----------------------+
+| Gemma / LiteRT-LM   |                           | PostgreSQL 16         |
++---------------------+                           +-----------------------+
+```
 
 ## Funcionalidades principales
 
-* Registro e inicio de sesión mediante Firebase Authentication.
-* Verificación de correo electrónico.
-* Recuperación de contraseña.
-* Gestión del perfil del usuario.
-* Creación y eliminación de materias.
-* Asociación de temas a las materias.
-* Creación, actualización y eliminación de tareas.
-* Clasificación de tareas por prioridad y estado.
-* Consulta de tareas próximas.
-* Integración con información académica de UTADEO.
-* Sincronización de materias y tareas académicas.
-* Consulta de conversaciones académicas.
-* Notificaciones de tareas y mensajes.
-* Retos académicos por materia.
-* Generación de preguntas utilizando Gemma ejecutado localmente.
-* Descarga automática del modelo mediante WorkManager.
-* Caché local de preguntas para reducir tiempos de espera.
+- Registro de usuarios nuevos.
+- Inicio y cierre de sesión mediante la API propia.
+- Gestión de perfil.
+- Gestión de materias y temas.
+- Gestión de tareas por prioridad y estado.
+- Sincronización de materias, participantes y tareas de UTADEO.
+- Persistencia del progreso de retos diarios.
+- Generación local de preguntas mediante Gemma.
+- Descarga del modelo y trabajos periódicos mediante WorkManager.
+- Notificaciones de tareas y mensajes.
 
-## Tecnologías utilizadas
+### Funcionalidades de autenticación aplazadas
 
-| Tecnología                 | Uso                                                |
-| -------------------------- | -------------------------------------------------- |
-| Kotlin 2.0.21              | Lenguaje principal                                 |
-| Jetpack Compose            | Interfaz de usuario                                |
-| Material 3                 | Componentes visuales                               |
-| Navigation Compose         | Navegación                                         |
-| ViewModel                  | Gestión de estado                                  |
-| StateFlow                  | Estado reactivo                                    |
-| Firebase Authentication    | Autenticación                                      |
-| Firebase Realtime Database | Persistencia de usuarios, materias, tareas y retos |
-| Firebase Analytics         | Analítica                                          |
-| WorkManager                | Trabajos y descargas en segundo plano              |
-| LiteRT-LM 0.11.0           | Ejecución local del modelo de IA                   |
-| Gemma                      | Generación local de preguntas                      |
-| OkHttp 4.12.0              | Solicitudes HTTP                                   |
-| Jsoup 1.17.2               | Procesamiento de contenido web                     |
-| Android Security Crypto    | Almacenamiento seguro de credenciales              |
-| Gradle Kotlin DSL          | Configuración del proyecto                         |
+La recuperación de contraseña y la verificación de correo electrónico se dejaron para una fase posterior. No son necesarias para ejecutar el sistema actual.
 
----
+## Tecnologías
+
+| Componente | Tecnología |
+| --- | --- |
+| Aplicación móvil | Kotlin, Jetpack Compose, Material 3 |
+| Cliente HTTP | Retrofit 2 + OkHttp |
+| Backend | Spring Boot 3.3.4 |
+| JVM del backend | Java 21 |
+| Persistencia | PostgreSQL 16 |
+| Migraciones | Flyway |
+| Seguridad | Spring Security, BCrypt, tokens Bearer con hash SHA-256 |
+| IA local | Gemma + LiteRT-LM |
+| Procesos Android | WorkManager |
+| Entorno reproducible | Docker Compose |
+| Carga experimental | k6 |
+| CI | GitHub Actions |
 
 # 1. Requisitos previos
 
-Antes de ejecutar el proyecto debe tener instalado lo siguiente.
+Para la ruta recomendada de ejecución se requiere:
 
-### Git
+- Git.
+- Docker Desktop o Docker Engine con `docker compose`.
+- Android Studio.
+- JDK 17 para el proyecto Android.
+- Android SDK Platform 36 y Build-Tools 36.0.0.
+- Dispositivo Android 8.0/API 26 o superior, físico o emulado.
 
-Necesario para clonar el repositorio.
+Java 21 solo es obligatorio localmente si desea ejecutar el backend fuera de Docker. El contenedor ya incluye la versión necesaria.
 
-Comprobar instalación:
+Comprobaciones rápidas:
 
 ```bash
 git --version
-```
-
-### JDK 17
-
-Se recomienda utilizar JDK 17 para ejecutar Gradle y compilar el proyecto.
-
-Comprobar:
-
-```bash
+docker --version
+docker compose version
 java -version
 ```
 
-La salida debe indicar una versión 17 de Java.
-
-### Android Studio
-
-Debe utilizar una versión de Android Studio compatible con:
-
-```text
-Android Gradle Plugin: 9.0.1
-Kotlin: 2.0.21
-Gradle Wrapper: 9.1.0
-```
-
-No es necesario instalar Gradle de forma independiente porque el repositorio incluye Gradle Wrapper.
-
-### Android SDK
-
-El proyecto utiliza:
-
-```text
-compileSdk = 36
-targetSdk = 36
-minSdk = 26
-```
-
-Por lo tanto, deben estar instalados:
-
-```text
-Android SDK Platform 36
-Android SDK Build-Tools 36.0.0
-```
-
-Desde Android Studio pueden instalarse en:
-
-```text
-Tools
-→ SDK Manager
-→ SDK Platforms
-→ Android API 36
-```
-
-### Dispositivo Android
-
-Se necesita uno de los siguientes:
-
-* dispositivo físico con Android 8.0 o superior;
-* emulador con API 26 o superior.
-
-Para comprobar que ADB reconoce el dispositivo:
+# 2. Clonar el repositorio
 
 ```bash
-adb devices
+git clone https://github.com/afat13/Proyecto-ArquitecturaSoftware.git
+cd Proyecto-ArquitecturaSoftware
 ```
 
-Debe aparecer al menos un dispositivo con estado:
-
-```text
-device
-```
-
-### Conexión a Internet
-
-La conexión es necesaria para:
-
-* descargar dependencias en la primera compilación;
-* utilizar Firebase;
-* sincronizar información de UTADEO;
-* descargar inicialmente el modelo Gemma.
-
-Una vez descargado y cargado correctamente el modelo, la generación de los retos se realiza localmente.
-
----
-
-# 2. Configuración inicial
-
-## 2.1 Clonar el proyecto
-
-Clonar directamente la rama `retos`:
+Para trabajar sobre la migración antes de fusionarla a `main`:
 
 ```bash
-git clone --branch retos --single-branch https://github.com/afat13/Aprende-Aprender.git
+git switch migracion-postgresql
 ```
 
-Entrar al directorio:
+# 3. Variables de entorno
+
+El repositorio contiene `.env.example`. Cree una copia llamada `.env` en la raíz.
+
+### Windows PowerShell
+
+```powershell
+Copy-Item .env.example .env
+```
+
+### Linux/macOS
 
 ```bash
-cd Aprende-Aprender
+cp .env.example .env
 ```
 
-Comprobar la rama:
+Valores locales por defecto:
+
+```dotenv
+POSTGRES_DB=aprende_aprender
+POSTGRES_USER=aprende
+POSTGRES_PASSWORD=aprende_local
+SESSION_HOURS=24
+K6_VUS=30
+K6_DURATION=60s
+```
+
+Estos valores son únicamente para desarrollo local. No reutilice la contraseña de ejemplo en un despliegue real.
+
+# 4. Iniciar PostgreSQL y la API
+
+Desde la raíz:
 
 ```bash
-git branch --show-current
+docker compose up -d --build db api
 ```
 
-Resultado esperado:
+Comprobar estado:
+
+```bash
+docker compose ps
+```
+
+La base de datos debe aparecer como `healthy` y posteriormente la API también.
+
+Comprobar el backend:
 
 ```text
-retos
+http://localhost:8080/actuator/health
 ```
 
----
+Respuesta esperada:
 
-## 2.2 Configurar Android SDK
-
-Normalmente Android Studio crea automáticamente el archivo:
-
-```text
-local.properties
+```json
+{"status":"UP"}
 ```
 
-Si aparece el error:
+Flyway ejecuta automáticamente las migraciones de `backend/src/main/resources/db/migration/` cuando inicia la API.
+
+Para detener el entorno:
+
+```bash
+docker compose down
+```
+
+Para borrar también los datos locales de PostgreSQL y comenzar desde cero:
+
+```bash
+docker compose down -v
+```
+
+# 5. Ejecutar Android
+
+## 5.1 Android SDK
+
+Si aparece:
 
 ```text
 SDK location not found
 ```
 
-crear `local.properties` en la raíz del proyecto.
-
-### Windows
-
-Ejemplo:
+cree `local.properties` en la raíz. Ejemplo de Windows:
 
 ```properties
 sdk.dir=C:\\Users\\USUARIO\\AppData\\Local\\Android\\Sdk
 ```
 
-Sustituya `USUARIO` por el usuario de Windows correspondiente.
+`local.properties` es local y no debe subirse al repositorio.
 
-También puede comprobar la ubicación desde:
+## 5.2 URL del backend
+
+En un emulador Android estándar la aplicación usa por defecto:
 
 ```text
-Android Studio
-→ Settings
-→ Languages & Frameworks
-→ Android SDK
+http://10.0.2.2:8080/
 ```
 
-### Linux
+`10.0.2.2` permite al emulador acceder al `localhost` del computador anfitrión.
 
-Ejemplo:
+Para un teléfono físico conectado a la misma red, agregue en su `gradle.properties` local:
 
 ```properties
-sdk.dir=/home/usuario/Android/Sdk
+API_BASE_URL=http://IP_DEL_COMPUTADOR:8080/
 ```
 
-### macOS
-
-Ejemplo:
+Ejemplo conceptual:
 
 ```properties
-sdk.dir=/Users/usuario/Library/Android/sdk
+API_BASE_URL=http://192.168.1.20:8080/
 ```
 
-El archivo `local.properties` no debe subirse al repositorio.
+No copie una IP de ejemplo sin comprobar la IP real del computador.
 
----
-
-## 2.3 Configuración de Firebase
-
-La aplicación utiliza:
-
-```text
-Firebase Authentication
-Firebase Realtime Database
-Firebase Analytics
-```
-
-La configuración Android está asociada mediante:
-
-```text
-app/google-services.json
-```
-
-Los datos principales de cada usuario se almacenan bajo la estructura:
-
-```text
-usuarios
-└── {uid}
-    ├── correo
-    ├── nombres
-    ├── apellidos
-    ├── telefono
-    └── materias
-        └── {materiaId}
-            ├── asignatura
-            ├── instructor
-            ├── temas
-            └── tareas
-```
-
-Las materias creadas desde la aplicación se almacenan en:
-
-```text
-usuarios/{uid}/materias/{materiaId}
-```
-
-Las tareas se almacenan dentro de su materia:
-
-```text
-usuarios/{uid}/materias/{materiaId}/tareas/{tareaId}
-```
-
----
-
-## 2.4 Configuración del modelo de inteligencia artificial
-
-La aplicación utiliza un modelo LiteRT-LM almacenado localmente con el nombre:
-
-```text
-gemma-4-E2B-it.litertlm
-```
-
-El archivo se guarda dentro del almacenamiento privado de la aplicación en:
-
-```text
-files/models/gemma-4-E2B-it.litertlm
-```
-
-Los parámetros del modelo se reciben mediante propiedades de Gradle:
-
-```properties
-GEMMA_MODEL_URL=
-GEMMA_MODEL_TOKEN=
-GEMMA_MODEL_SHA256=
-GEMMA_MODEL_SIZE_BYTES=
-```
-
-También existe la propiedad:
-
-```properties
-APIS=
-```
-
-para claves del servicio OpenRouter incluido en el proyecto.
-
-Las claves de `APIS` pueden separarse por:
-
-```text
-,
-;
-salto de línea
-```
-
-Ejemplo:
-
-```properties
-APIS=CLAVE_1,CLAVE_2
-```
-
-No deben almacenarse claves privadas reales dentro de archivos que vayan a publicarse.
-
-Una opción para desarrollo es utilizar el archivo global de Gradle del usuario.
-
-### Windows
-
-```text
-C:\Users\USUARIO\.gradle\gradle.properties
-```
-
-### Linux/macOS
-
-```text
-~/.gradle/gradle.properties
-```
-
-Ejemplo:
-
-```properties
-APIS=
-
-GEMMA_MODEL_URL=https://servidor/modelos/gemma-4-E2B-it.litertlm
-GEMMA_MODEL_TOKEN=
-GEMMA_MODEL_SHA256=
-GEMMA_MODEL_SIZE_BYTES=0
-```
-
-### `GEMMA_MODEL_URL`
-
-Debe apuntar directamente al archivo `.litertlm`.
-
-Correcto:
-
-```text
-https://servidor/.../resolve/.../gemma-4-E2B-it.litertlm
-```
-
-Incorrecto:
-
-```text
-https://servidor/.../blob/.../gemma-4-E2B-it.litertlm
-```
-
-La respuesta HTTP debe contener el archivo binario y no una página HTML.
-
-### `GEMMA_MODEL_TOKEN`
-
-Solo es necesario cuando el servidor donde está almacenado el modelo requiere autenticación.
-
-Puede quedar vacío si el archivo es público:
-
-```properties
-GEMMA_MODEL_TOKEN=
-```
-
-### `GEMMA_MODEL_SHA256`
-
-Permite validar la integridad del archivo descargado.
-
-Ejemplo:
-
-```properties
-GEMMA_MODEL_SHA256=SHA256_DEL_ARCHIVO
-```
-
-### `GEMMA_MODEL_SIZE_BYTES`
-
-Permite comprobar que el archivo tiene exactamente el tamaño esperado.
-
-Si no se desea validar el tamaño:
-
-```properties
-GEMMA_MODEL_SIZE_BYTES=0
-```
-
-Para un entorno controlado es recomendable utilizar tanto SHA-256 como tamaño esperado.
-
----
-
-# 3. Instalación y preparación
-
-El repositorio contiene Gradle Wrapper, por lo que no es necesario instalar Gradle manualmente.
-
-## Windows
-
-Comprobar Gradle:
-
-```powershell
-.\gradlew.bat --version
-```
-
-## Linux/macOS
-
-Dar permiso de ejecución si es necesario:
-
-```bash
-chmod +x gradlew
-```
-
-Comprobar:
-
-```bash
-./gradlew --version
-```
-
-Debe utilizarse:
-
-```text
-Gradle 9.1.0
-```
-
-A continuación descargar dependencias y compilar la aplicación.
+## 5.3 Compilar
 
 ### Windows
 
@@ -449,669 +223,188 @@ A continuación descargar dependencias y compilar la aplicación.
 ./gradlew assembleDebug
 ```
 
-La primera ejecución puede descargar:
+También puede abrir el proyecto en Android Studio, seleccionar un dispositivo y ejecutar `app`.
 
-* Gradle;
-* Android Gradle Plugin;
-* dependencias de AndroidX;
-* Firebase;
-* Compose;
-* LiteRT-LM;
-* WorkManager;
-* OkHttp;
-* demás librerías del proyecto.
+# 6. Autenticación
 
-Al terminar debe aparecer:
+El flujo implementado actualmente es:
 
 ```text
-BUILD SUCCESSFUL
+registro -> token Bearer -> sesión
+login    -> token Bearer -> sesión
+logout   -> eliminación de sesión
 ```
 
-El APK generado estará en:
+Las contraseñas se almacenan con BCrypt. El token de sesión se genera aleatoriamente y la base de datos conserva su hash SHA-256, no el token original.
 
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
----
-
-# 4. Cómo ejecutar la aplicación
-
-Existen dos formas principales.
-
-## Opción A: Android Studio
-
-1. Abrir Android Studio.
-2. Seleccionar `Open`.
-3. Seleccionar la carpeta raíz `Aprende-Aprender`.
-4. Esperar a que termine `Gradle Sync`.
-5. Seleccionar un emulador o dispositivo físico.
-6. Seleccionar la configuración `app`.
-7. Presionar `Run`.
-
-La actividad principal ejecutada es:
-
-```text
-com.example.aprendeaprender.MainActivity
-```
-
----
-
-## Opción B: Terminal
-
-Primero comprobar el dispositivo:
+Ejemplo de registro desde una terminal:
 
 ```bash
-adb devices
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"usuario@ejemplo.com","password":"Clave123!","firstName":"Usuario","lastName":"Prueba","phone":""}'
 ```
 
-Después instalar la aplicación.
+# 7. Pruebas automatizadas
 
-### Windows
+## Backend
 
-```powershell
-.\gradlew.bat installDebug
-```
-
-### Linux/macOS
+Requiere una instancia PostgreSQL disponible. La forma más simple es iniciar únicamente la base:
 
 ```bash
-./gradlew installDebug
+docker compose up -d db
 ```
 
-Resultado esperado:
-
-```text
-BUILD SUCCESSFUL
-```
-
-Posteriormente puede abrirse directamente mediante ADB:
+Después:
 
 ```bash
-adb shell am start -n com.example.aprendeaprender/.MainActivity
+gradle -p backend test
 ```
 
----
+En GitHub Actions el job del backend inicia automáticamente PostgreSQL 16 antes de ejecutar las pruebas.
 
-# 5. Cómo verificar que funciona
-
-La verificación puede realizarse en varios niveles.
-
-## 5.1 Verificar la compilación
-
-### Windows
-
-```powershell
-.\gradlew.bat assembleDebug
-```
-
-### Linux/macOS
-
-```bash
-./gradlew assembleDebug
-```
-
-Resultado esperado:
-
-```text
-BUILD SUCCESSFUL
-```
-
-También debe existir:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
----
-
-## 5.2 Verificar el arranque
-
-Instalar:
-
-```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
-
-Abrir:
-
-```bash
-adb shell am start -n com.example.aprendeaprender/.MainActivity
-```
-
-Al iniciar debe mostrarse primero la pantalla de carga.
-
-Después de aproximadamente un segundo:
-
-* si no existe una sesión activa, debe mostrarse el inicio de sesión;
-* si existe una sesión válida, debe abrirse la pantalla principal.
-
----
-
-## 5.3 Verificar autenticación
-
-Desde la aplicación:
-
-1. crear una cuenta;
-2. completar los datos solicitados;
-3. verificar el correo si corresponde;
-4. iniciar sesión.
-
-Una autenticación correcta debe permitir acceder a la pantalla principal.
-
-El usuario debe aparecer en Firebase Authentication y su perfil debe existir en:
-
-```text
-usuarios/{uid}
-```
-
----
-
-## 5.4 Verificar materias
-
-Crear una materia desde:
-
-```text
-Materias → Agregar
-```
-
-Después de guardar:
-
-* la materia debe aparecer en la lista;
-* debe poder abrirse su detalle;
-* debe existir en Firebase bajo:
-
-```text
-usuarios/{uid}/materias/{materiaId}
-```
-
----
-
-## 5.5 Verificar tareas
-
-Crear una tarea asociada a una materia.
-
-Después de guardar:
-
-* debe aparecer en la lista de tareas;
-* debe aparecer dentro de la materia correspondiente;
-* debe conservar prioridad, estado y fecha de entrega.
-
-En Firebase debe existir en:
-
-```text
-usuarios/{uid}/materias/{materiaId}/tareas/{tareaId}
-```
-
----
-
-## 5.6 Verificar el modelo Gemma
-
-Al iniciar la aplicación se comprueba automáticamente si el modelo existe.
-
-Si no existe y `GEMMA_MODEL_URL` está configurado, la aplicación inicia su descarga mediante WorkManager.
-
-Durante el proceso pueden aparecer estados como:
-
-```text
-Verificando modelo de IA...
-Descargando modelo Gemma 4...
-```
-
-Después de una descarga y carga correcta el módulo de retos queda preparado para generar preguntas.
-
-Para inspeccionar mensajes relacionados con el modelo:
-
-### Windows / PowerShell
-
-```powershell
-adb logcat | Select-String "Gemma"
-```
-
-### Linux/macOS
-
-```bash
-adb logcat | grep Gemma
-```
-
----
-
-## 5.7 Verificar los retos
-
-Para comprobar el módulo:
-
-1. iniciar sesión;
-2. crear al menos una materia;
-3. opcionalmente agregar temas;
-4. opcionalmente crear tareas asociadas;
-5. esperar a que Gemma esté listo;
-6. abrir `Retos`;
-7. seleccionar una materia;
-8. iniciar el reto.
-
-Debe generarse una pregunta con:
-
-```text
-Pregunta
-4 opciones
-Respuesta correcta
-Explicación
-```
-
-Cada reto utiliza seis preguntas.
-
-Cuando existen tareas asociadas, estas se utilizan como contexto para generar preguntas relacionadas con el contenido académico del usuario.
-
----
-
-# 6. Cómo ejecutar las pruebas
-
-## Pruebas unitarias
+## Android
 
 ### Windows
 
 ```powershell
 .\gradlew.bat testDebugUnitTest
+.\gradlew.bat lintDebug
+.\gradlew.bat assembleDebug
 ```
 
 ### Linux/macOS
 
 ```bash
 ./gradlew testDebugUnitTest
+./gradlew lintDebug
+./gradlew assembleDebug
 ```
 
-Resultado esperado:
+# 8. Integración continua
+
+El workflow está en:
 
 ```text
-BUILD SUCCESSFUL
+.github/workflows/ci.yml
 ```
 
-El reporte HTML queda disponible en:
+Ejecuta dos jobs independientes:
+
+1. **Backend y PostgreSQL**: PostgreSQL 16, JDK 21, pruebas de integración y validación de Docker Compose.
+2. **Android**: JDK 17, Android SDK 36, pruebas unitarias, lint y compilación del APK de depuración.
+
+El workflow se ejecuta con `push` sobre `main` y `migracion-postgresql`, y en pull requests hacia `main`.
+
+# 9. Experimento reproducible de línea base
+
+La hipótesis preregistrada se encuentra en:
 
 ```text
-app/build/reports/tests/testDebugUnitTest/index.html
+docs/experimento/01-hipotesis-inicial.md
 ```
 
----
+El experimento se encuentra en:
 
-## Pruebas instrumentadas
-
-Estas pruebas necesitan un dispositivo o emulador Android activo.
-
-Comprobar primero:
-
-```bash
-adb devices
+```text
+experimentos/consulta-tareas/
 ```
 
-Después ejecutar:
+Escenario inicial:
+
+```text
+Operación: GET /api/tasks
+Semilla: 1 usuario, 8 materias, 10.000 tareas
+Carga: 30 usuarios virtuales
+Duración: 60 segundos por corrida
+Corridas: 4
+Corrida 1: calentamiento
+Resultado: mediana del p95 de las corridas 2, 3 y 4
+```
+
+Para ejecutar la medición completa:
 
 ### Windows
 
 ```powershell
-.\gradlew.bat connectedDebugAndroidTest
+python .\experimentos\consulta-tareas\ejecutar_experimento.py
 ```
 
 ### Linux/macOS
 
 ```bash
-./gradlew connectedDebugAndroidTest
+python3 ./experimentos/consulta-tareas/ejecutar_experimento.py
 ```
 
-Resultado esperado:
+El script crea o valida el usuario de prueba, carga la semilla, verifica su distribución, registra el hash del commit y las condiciones de ejecución, lanza cuatro corridas de k6 y conserva tanto los datos crudos como el resumen.
+
+No se incluyen resultados inventados en el repositorio. Los números de línea base se agregan únicamente después de ejecutar el experimento.
+
+# 10. Estructura relevante
 
 ```text
-BUILD SUCCESSFUL
+Proyecto-ArquitecturaSoftware/
+├── app/                           # Aplicación Android
+├── backend/                       # API Spring Boot
+│   └── src/main/resources/
+│       └── db/migration/          # Migraciones Flyway
+├── dossier/                       # Contexto y dossier arquitectónico
+├── docs/
+│   └── experimento/               # Hipótesis y documentación experimental
+├── experimentos/
+│   └── consulta-tareas/           # Semilla, k6, ejecutor y resultados
+├── .github/workflows/ci.yml       # CI
+├── docker-compose.yml             # PostgreSQL + API + k6
+└── .env.example                   # Variables locales de ejemplo
 ```
 
----
+# 11. Persistencia y flujo de datos
 
-## Compilación y pruebas en un solo comando
-
-### Windows
-
-```powershell
-.\gradlew.bat testDebugUnitTest assembleDebug
-```
-
-### Linux/macOS
-
-```bash
-./gradlew testDebugUnitTest assembleDebug
-```
-
-Este comando verifica simultáneamente que:
-
-* el código compila;
-* las pruebas unitarias pasan;
-* puede generarse un APK debug.
-
-El proyecto dispone actualmente de una prueba unitaria básica del entorno y una prueba instrumentada que comprueba que el package de la aplicación sea:
+La aplicación sigue la regla:
 
 ```text
-com.example.aprendeaprender
+Android -> API REST -> PostgreSQL
 ```
 
-Estas pruebas comprueban que la infraestructura de pruebas y la aplicación Android pueden ejecutarse correctamente.
-
----
-
-# 7. Datos iniciales
-
-La aplicación no necesita una base de datos precargada para iniciar.
-
-Un usuario nuevo comienza sin materias ni tareas. Los datos académicos se crean desde la interfaz o pueden obtenerse mediante la integración con UTADEO.
-
-Para disponer de un estado mínimo reproducible puede utilizarse el siguiente procedimiento.
-
-## Crear usuario
-
-Registrar una cuenta desde la aplicación e iniciar sesión.
-
-## Crear materia de prueba
-
-Crear:
+Nunca:
 
 ```text
-Asignatura:
-Arquitectura de Software
-
-Instructor:
-Profesor de prueba
-
-Temas:
-Patrones de arquitectura
-Calidad de software
-MVVM
+Android -> PostgreSQL
 ```
 
-Después comprobar que aparece en:
+La sincronización académica sigue el flujo:
 
 ```text
-Materias
+UTADEO -> Android -> API REST -> PostgreSQL
 ```
 
-## Crear tarea de prueba
-
-Dentro de la materia anterior crear:
+La generación de preguntas sigue siendo local:
 
 ```text
-Título:
-Revisar patrón MVVM
-
-Descripción:
-Identificar las responsabilidades de Model, View y ViewModel.
-
-Prioridad:
-MEDIA
-
-Estado:
-PENDIENTE
+Android -> Gemma local
 ```
 
-Después comprobar que:
-
-* aparece en `Tareas`;
-* aparece en el detalle de `Arquitectura de Software`;
-* puede modificarse su estado.
-
-## Comprobar en Firebase
-
-La estructura esperada será equivalente a:
+Cuando corresponde conservar preguntas/progreso:
 
 ```text
-usuarios
-└── {uid}
-    └── materias
-        └── {materiaId}
-            ├── asignatura: "Arquitectura de Software"
-            ├── instructor: "Profesor de prueba"
-            ├── temas
-            │   ├── "Patrones de arquitectura"
-            │   ├── "Calidad de software"
-            │   └── "MVVM"
-            └── tareas
-                └── {tareaId}
-                    ├── titulo: "Revisar patrón MVVM"
-                    ├── prioridad: "MEDIA"
-                    └── estado: "PENDIENTE"
+Gemma local -> repositorio Android -> API REST -> PostgreSQL
 ```
 
-Con esta información ya es posible comprobar:
+# 12. Seguridad y archivos que no deben versionarse
 
-* persistencia;
-* materias;
-* tareas;
-* pantalla principal;
-* retos;
-* generación de preguntas.
+No suba al repositorio:
 
----
+- `.env` con credenciales reales;
+- `local.properties`;
+- contraseñas de UTADEO;
+- tokens de sesión;
+- claves privadas o API keys personales;
+- archivos locales del modelo si no están destinados expresamente a versionarse.
 
-# 8. Sincronización con UTADEO
+Las variables sensibles deben configurarse mediante variables de entorno o secretos del entorno de despliegue.
 
-La aplicación permite utilizar información académica proveniente de UTADEO.
+# 13. Estado de la migración
 
-La sincronización puede incorporar:
+La arquitectura objetivo de este corte sustituye Firebase Authentication y Firebase Realtime Database por autenticación propia y PostgreSQL. Se crean usuarios nuevos; no se realiza migración de cuentas ni contraseñas históricas de Firebase.
 
-* materias;
-* profesor;
-* participantes;
-* tareas;
-* fechas de entrega;
-* estado de las actividades.
-
-Las materias provenientes de UTADEO utilizan identificadores con el formato:
-
-```text
-utadeo_{courseId}
-```
-
-Las tareas sincronizadas utilizan:
-
-```text
-utadeo_assign_{assignmentId}
-```
-
-Esto permite ejecutar nuevamente la sincronización sin crear registros duplicados.
-
-Cuando una actividad ya existe, la sincronización actualiza sus datos en lugar de generar otra copia.
-
----
-
-# 9. Cómo detener o limpiar el entorno
-
-## Detener la aplicación
-
-```bash
-adb shell am force-stop com.example.aprendeaprender
-```
-
----
-
-## Limpiar archivos de compilación
-
-### Windows
-
-```powershell
-.\gradlew.bat clean
-```
-
-### Linux/macOS
-
-```bash
-./gradlew clean
-```
-
-Esto elimina los archivos generados dentro de:
-
-```text
-app/build/
-build/
-```
-
-No elimina información de Firebase.
-
----
-
-## Limpiar los datos locales de la aplicación
-
-```bash
-adb shell pm clear com.example.aprendeaprender
-```
-
-Esto elimina del dispositivo:
-
-* sesión local;
-* preferencias;
-* credenciales locales;
-* caché de preguntas;
-* información interna;
-* modelo Gemma descargado.
-
-Después de ejecutar este comando, el modelo tendrá que descargarse nuevamente si no existe localmente.
-
-Los datos almacenados en Firebase no se eliminan.
-
----
-
-## Desinstalar la aplicación
-
-```bash
-adb uninstall com.example.aprendeaprender
-```
-
-Resultado esperado:
-
-```text
-Success
-```
-
----
-
-## Reiniciar completamente una cuenta de pruebas
-
-Borrar los datos locales no elimina los datos remotos.
-
-Para comenzar completamente desde cero con una cuenta de pruebas deben eliminarse también sus datos de Firebase.
-
-Ruta principal:
-
-```text
-usuarios/{uid}
-```
-
-Si también se desea eliminar la autenticación, debe eliminarse la cuenta correspondiente desde Firebase Authentication.
-
-Este procedimiento debe realizarse únicamente sobre usuarios utilizados para desarrollo o pruebas.
-
----
-
-# 10. Problemas conocidos
-
-## Android SDK no encontrado
-
-Error:
-
-```text
-SDK location not found
-```
-
-Solución:
-
-crear `local.properties` en la raíz del proyecto y establecer una ruta válida:
-
-```properties
-sdk.dir=C:\\Users\\USUARIO\\AppData\\Local\\Android\\Sdk
-```
-
----
-
-## El modelo de IA no se descarga
-
-Si aparece:
-
-```text
-Falta configurar el modelo.
-```
-
-comprobar:
-
-```properties
-GEMMA_MODEL_URL=
-```
-
-La URL debe existir y apuntar directamente a un archivo:
-
-```text
-.litertlm
-```
-
-Si el servidor devuelve HTML en lugar del archivo, comprobar que se esté utilizando una URL de descarga directa y no una página de visualización.
-
-Si el recurso requiere autenticación, configurar:
-
-```properties
-GEMMA_MODEL_TOKEN=
-```
-
----
-
-## Notificación de prueba al iniciar
-
-La versión actual ejecuta una notificación de prueba desde `MainActivity`.
-
-La llamada responsable es:
-
-```kotlin
-dispararNotificacionesDePrueba()
-```
-
-Para una compilación destinada a distribución debe retirarse esta llamada, conservando únicamente los Workers y notificaciones reales de tareas y conversaciones.
-
----
-
-# Comandos rápidos
-
-## Windows
-
-```powershell
-git clone --branch retos --single-branch https://github.com/afat13/Aprende-Aprender.git
-cd Aprende-Aprender
-
-.\gradlew.bat testDebugUnitTest assembleDebug
-
-adb devices
-.\gradlew.bat installDebug
-
-adb shell am start -n com.example.aprendeaprender/.MainActivity
-```
-
-## Linux/macOS
-
-```bash
-git clone --branch retos --single-branch https://github.com/afat13/Aprende-Aprender.git
-cd Aprende-Aprender
-
-chmod +x gradlew
-./gradlew testDebugUnitTest assembleDebug
-
-adb devices
-./gradlew installDebug
-
-adb shell am start -n com.example.aprendeaprender/.MainActivity
-```
-
-Si todo es correcto, la compilación debe finalizar con:
-
-```text
-BUILD SUCCESSFUL
-```
-
-y la aplicación debe iniciar mostrando la pantalla de carga seguida del inicio de sesión o de la pantalla principal cuando ya exista una sesión activa.
-
-## Autores
-
-* Andres Felipe Ardila
-* Thomas Huérfano Ramirez
-* Valentina Silva Paez
+La recuperación de contraseña y la verificación de correo quedan explícitamente aplazadas para una implementación posterior.
