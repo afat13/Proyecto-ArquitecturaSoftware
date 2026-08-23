@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aprendeaprender.R
 import com.example.aprendeaprender.data.repository.SubjectRepository
-import com.google.firebase.FirebaseNetworkException
+import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -121,7 +121,7 @@ class SubjectViewModel(
 
     private fun mapSubjectError(e: Exception): Int {
         return when (e) {
-            is FirebaseNetworkException -> R.string.auth_error_network
+            is IOException -> R.string.auth_error_network
             else -> R.string.auth_error_generic
         }
     }
