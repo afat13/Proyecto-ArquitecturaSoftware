@@ -9,9 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.aprendeaprender.data.notifications.ChatNotificationHelper
 import com.example.aprendeaprender.data.notifications.ChatPollWorker
-import com.example.aprendeaprender.data.notifications.TaskNotificationHelper
 import com.example.aprendeaprender.data.notifications.TaskPollWorker
 import com.example.aprendeaprender.navigation.AppNavHost
 import com.example.aprendeaprender.ui.theme.AprendeAprenderTheme
@@ -23,11 +21,7 @@ class MainActivity : ComponentActivity() {
 
         ChatPollWorker.registrar(this)
         TaskPollWorker.registrar(this)
-
         pedirPermisoNotificaciones()
-
-        // TEMPORAL PARA PROBAR — borra esta línea cuando confirmes que funciona
-        dispararNotificacionesDePrueba()
 
         setContent {
             AprendeAprenderTheme {
@@ -43,17 +37,5 @@ class MainActivity : ComponentActivity() {
                 ActivityCompat.requestPermissions(this, arrayOf(permiso), 1001)
             }
         }
-    }
-
-    // TEMPORAL PARA PROBAR — borra esta función completa cuando confirmes que funciona
-    private fun dispararNotificacionesDePrueba() {
-
-        TaskNotificationHelper.mostrar(
-            context = this,
-            notificationId = 9002,
-            nombreTarea = "Tarea de prueba",
-            nombreMateria = "Aprende a Aprender",
-            fechaEntrega = System.currentTimeMillis() + 86_400_000L
-        )
     }
 }
