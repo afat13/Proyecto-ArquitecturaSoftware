@@ -1,0 +1,258 @@
+<resources>
+    <string name="app_name">Aprende a Aprender</string>
+    <string name="app_brand_name">Aprende a\nAprender</string>
+    <string name="logo_app_desc">Logo de Aprende a Aprender</string>
+
+    <string name="splash_login_button">Iniciar sesión</string>
+    <string name="splash_register_button">Regístrate</string>
+
+    <string name="login_title">Iniciar sesión</string>
+    <string name="login_subtitle">Accede a tu cuenta para continuar.</string>
+    <string name="login_button">Ingresar</string>
+    <string name="login_no_account">¿No tienes cuenta?</string>
+    <string name="register_link">Regístrate</string>
+    <string name="nav_chat">Chat</string>
+
+    <string name="forgot_password_title">Restablecer contraseña</string>
+    <string name="forgot_password_subtitle">Recupera el acceso a tu cuenta.</string>
+    <string name="forgot_password_description">Ingresa tu correo. Si está asociado a una cuenta, te enviaremos un enlace para restablecer la contraseña.</string>
+    <string name="forgot_password_link">Olvidé mi contraseña</string>
+    <string name="send_link_button">Enviar enlace</string>
+    <string name="back_to_login">Volver al login</string>
+
+    <string name="register_title">Crear cuenta</string>
+    <string name="register_subtitle">Completa tus datos para registrarte.</string>
+    <string name="register_button">Registrarme</string>
+    <string name="register_have_account">¿Ya tienes cuenta?</string>
+
+    <string name="reset_password_email_sent_title">Correo enviado</string>
+    <string name="reset_password_email_sent_subtitle">Revisa tu bandeja de entrada</string>
+    <string name="reset_password_email_sent_body">Si el correo está asociado a una cuenta, te enviamos un enlace para restablecer tu contraseña.</string>
+    <string name="reset_password_email_sent_back_login">Volver al login</string>
+
+    <string name="verify_email_title">Verifica tu correo</string>
+    <string name="verify_email_subtitle">Activa tu cuenta para continuar</string>
+    <string name="verify_email_body">Te enviamos un correo de verificación. Revisa tu bandeja de entrada o la carpeta de spam y confirma tu cuenta antes de iniciar sesión.</string>
+    <string name="common_loading">Cargando...</string>
+    <string name="verify_email_check_action">Ya verifiqué mi correo</string>
+    <string name="verify_email_resend_action">Reenviar correo</string>
+    <string name="verify_email_back_to_login">Volver al login</string>
+
+    <string name="auth_error_invalid_email">El correo electrónico no es válido.</string>
+    <string name="auth_error_empty_password">La contraseña no puede estar vacía.</string>
+    <string name="auth_login_success">Inicio de sesión exitoso.</string>
+    <string name="auth_error_email_not_verified">Debes verificar tu correo antes de iniciar sesión.</string>
+    <string name="auth_error_password_mismatch">Las contraseñas no coinciden.</string>
+    <string name="verify_email_sent_success">Correo de verificación enviado correctamente.</string>
+    <string name="register_success_verify_email_sent">Registro exitoso. Te enviamos un correo de verificación.</string>
+    <string name="verify_email_resent_success">Correo de verificación reenviado correctamente.</string>
+    <string name="verify_email_confirmed_success">Correo verificado correctamente.</string>
+    <string name="verify_email_still_pending">Tu correo aún no ha sido verificado.</string>
+    <string name="verify_email_pending_send">La cuenta fue creada, pero no se pudo enviar el correo de verificación. Intenta reenviarlo desde la siguiente pantalla.</string>
+
+    <string name="auth_error_invalid_credentials">Correo o contraseña incorrectos.</string>
+    <string name="auth_error_user_not_found">No se encontró una cuenta con ese correo.</string>
+    <string name="auth_error_weak_password">La contraseña debe tener al menos 8 caracteres.</string>
+    <string name="auth_error_email_already_in_use">Ese correo ya está en uso.</string>
+    <string name="auth_error_network">Error de red. Inténtalo de nuevo.</string>
+    <string name="auth_error_generic">Ocurrió un error inesperado.</string>
+    <string name="forgot_password_success_generic">Si el correo está registrado, te enviamos un enlace para restablecer la contraseña.</string>
+
+    <string name="first_name_label">Nombre</string>
+    <string name="last_name_label">Apellido</string>
+    <string name="age_label">Edad</string>
+    <string name="career_label">Carrera</string>
+    <string name="email_label">Correo electrónico</string>
+    <string name="password_label">Contraseña</string>
+    <string name="confirm_password_label">Confirmar contraseña</string>
+
+    <string name="accept_terms_label">Acepto los términos y condiciones</string>
+    <string name="view_terms_label">Leer términos y condiciones</string>
+    <string name="terms_dialog_title">Términos y condiciones</string>
+    <string name="terms_dialog_subtitle">Para crear tu cuenta, debes leer y aceptar los términos y condiciones de uso de la aplicación.</string>
+    <string name="auth_error_terms_required">Debes aceptar los términos y condiciones para continuar.</string>
+    <string name="terms_dialog_decline">Cancelar</string>
+    <string name="terms_dialog_accept">Aceptar</string>
+
+    <string name="terms_dialog_body">
+1. Aceptación de los términos
+
+Al registrarse y utilizar la aplicación Aprende a Aprender, el usuario acepta cumplir con los presentes términos y condiciones de uso. Si no está de acuerdo con alguno de ellos, deberá abstenerse de utilizar la aplicación.
+
+2. Descripción del servicio
+
+Aprende a Aprender es una herramienta digital orientada a apoyar a estudiantes en la mejora de sus hábitos de estudio, organización académica y estrategias de aprendizaje mediante recursos, planificación y acompañamiento educativo. La aplicación tiene fines de apoyo académico y no sustituye asesoría profesional especializada.
+
+3. Uso adecuado de la aplicación
+
+El usuario se compromete a utilizar la aplicación de forma responsable, ética y conforme a la ley. Queda prohibido usar la plataforma para actividades fraudulentas, ofensivas, ilícitas o que afecten el funcionamiento normal del servicio.
+
+4. Registro de cuenta
+
+Para acceder a determinadas funcionalidades, el usuario deberá registrarse proporcionando información veraz, completa y actualizada. El usuario es responsable de la confidencialidad de sus credenciales de acceso.
+
+5. Privacidad y protección de datos
+
+La información personal proporcionada por el usuario será tratada de acuerdo con la política de privacidad de la aplicación. No se compartirán datos personales con terceros sin autorización, salvo obligación legal.
+
+6. Propiedad intelectual
+
+Todo el contenido de la aplicación, incluyendo textos, diseños, logotipos, elementos gráficos, funcionalidades y software, es propiedad de Aprende a Aprender o cuenta con los permisos correspondientes, y está protegido por la normativa aplicable sobre propiedad intelectual.
+
+7. Limitación de responsabilidad
+
+La aplicación se ofrece como herramienta de apoyo académico. No se garantiza que el servicio esté libre de errores, interrupciones o que satisfaga todas las necesidades particulares del usuario.
+
+8. Modificaciones
+
+Aprende a Aprender podrá actualizar o modificar estos términos y condiciones en cualquier momento. El uso continuado de la aplicación después de dichos cambios implicará la aceptación de la versión actualizada.
+
+9. Aceptación final
+
+Al seleccionar la opción de aceptación, el usuario declara haber leído, entendido y aceptado los presentes términos y condiciones.
+    </string>
+
+    <string name="profile_title">Perfil</string>
+    <string name="profile_description">Actualiza tus datos personales. El correo es solo informativo y no se puede modificar.</string>
+    <string name="profile_first_name_label">Nombre</string>
+    <string name="profile_last_name_label">Apellido</string>
+    <string name="profile_email_label">Correo electrónico</string>
+    <string name="profile_phone_label">Número telefónico</string>
+    <string name="profile_email_read_only">Este campo no es editable.</string>
+    <string name="profile_phone_support">Puedes usar números, espacios, + y guiones.</string>
+    <string name="profile_save_button">Guardar cambios</string>
+    <string name="profile_retry_button">Reintentar</string>
+    <string name="profile_update_error">No se pudo actualizar el perfil.</string>
+    <string name="profile_update_success">Perfil actualizado correctamente.</string>
+    <string name="profile_first_name_required">El nombre es obligatorio.</string>
+    <string name="profile_first_name_short">El nombre es demasiado corto.</string>
+    <string name="profile_last_name_required">El apellido es obligatorio.</string>
+    <string name="profile_last_name_short">El apellido es demasiado corto.</string>
+    <string name="profile_phone_required">El número telefónico es obligatorio.</string>
+    <string name="profile_phone_short">El número debe tener al menos 7 dígitos.</string>
+    <string name="profile_phone_long">El número no puede superar 15 dígitos.</string>
+    <string name="profile_subtitle">Actualiza tus datos personales. El correo es solo informativo y no se puede modificar.</string>
+    <string name="profile_email_not_editable">Este campo no es editable.</string>
+    <string name="profile_phone_helper">Puedes usar números, espacios, + y guiones.</string>
+    <string name="profile_save_success">Los datos se actualizaron correctamente.</string>
+    <string name="profile_save_error">No fue posible guardar los datos.</string>
+    <string name="profile_load_error">No fue posible cargar el perfil.</string>
+    <string name="profile_error_empty_name">Debes ingresar el nombre.</string>
+    <string name="profile_error_empty_last_name">Debes ingresar el apellido.</string>
+    <string name="profile_error_invalid_phone">El número telefónico no es válido.</string>
+    <string name="phone_label">Número telefónico</string>
+    <string name="saving_label">Guardando...</string>
+    <string name="back_label">Volver</string>
+
+    <string name="home_greeting">Hola %1$s</string>
+    <string name="home_subtitle">Tienes %1$d tareas en curso y %2$d vencidas</string>
+    <string name="home_stat_completed">Realizadas</string>
+    <string name="home_stat_in_progress">En curso</string>
+    <string name="home_stat_today">Hoy</string>
+    <string name="home_view_subjects">Ver mis materias</string>
+    <string name="home_view_tasks_today">Ver mis tareas de hoy</string>
+    <string name="home_enroll_subject">Inscribir materia</string>
+    <string name="home_default_user_name">Usuario</string>
+    <string name="home_logo_content_description">Logo de Aprende Aprender</string>
+    <string name="home_action_arrow_content_description">Ir a la opción</string>
+
+    <string name="nav_home">Inicio</string>
+    <string name="nav_subjects">Materias</string>
+    <string name="nav_tasks">Tareas</string>
+    <string name="nav_challenges">Retos</string>
+    <string name="nav_profile">Perfil</string>
+
+    <string name="profile_logout_title">Cerrar sesión</string>
+    <string name="profile_logout_message">¿Quieres cerrar la sesión en este dispositivo?</string>
+    <string name="profile_btn_logout">Cerrar sesión</string>
+    <string name="profile_btn_cancel">Cancelar</string>
+    <string name="profile_btn_edit">Editar perfil</string>
+    <string name="profile_btn_save">Guardar cambios</string>
+    <string name="profile_cd_photo">Foto de perfil</string>
+
+    <string name="subject_new_title">Nueva Materia</string>
+    <string name="subject_data_header">Datos de asignatura</string>
+    <string name="subject_name_label">asignatura</string>
+    <string name="subject_instructor_label">Instructor</string>
+    <string name="subject_topics_header">cuales temas voy a ver ?</string>
+    <string name="subject_topic_label">Tema %1$d</string>
+    <string name="subject_add_topic">un tema adicional ?</string>
+    <string name="subject_save_topics">Guardar Temas</string>
+    <string name="subject_enroll">Inscribir Materia</string>
+    <string name="subject_success_title">¡Qué buena onda! ¡Materia inscrita con éxito!</string>
+    <string name="subject_success_message">¿Quieres aprovechar el impulso y agregar otra?</string>
+    <string name="subject_add_task">Agregar Tarea</string>
+    <string name="subject_finish">Finalizar</string>
+    <string name="subject_my_subjects">Mis materias</string>
+    <string name="subject_no_subjects">Aún no tienes materias inscritas</string>
+    <string name="subject_topics_count">%1$d temas</string>
+    <string name="subject_delete_title">Eliminar materia</string>
+    <string name="subject_delete_message">¿Estás seguro de eliminar esta materia?</string>
+    <string name="subject_btn_delete">Eliminar</string>
+    <string name="subject_error_empty_name">Ingresa el nombre de la asignatura</string>
+    <string name="subject_error_empty_instructor">Ingresa el nombre del instructor</string>
+    <string name="task_new_title">Nueva Tarea</string>
+    <string name="task_list_title">Mis Tareas</string>
+    <string name="task_subject_label">Materia</string>
+    <string name="task_title_label">Título</string>
+    <string name="task_description_label">Descripción</string>
+    <string name="task_due_date_label">Fecha de entrega</string>
+    <string name="task_priority_label">Prioridad</string>
+    <string name="task_status_label">Estado</string>
+    <string name="task_select_subject">Selecciona una materia</string>
+    <string name="task_select_date">Selecciona una fecha</string>
+    <string name="task_create_button">Crear Tarea</string>
+    <string name="task_add_button">Nueva</string>
+    <string name="task_section_today">📅 Hoy</string>
+    <string name="task_section_all">📋 Todas las tareas</string>
+    <string name="task_no_tasks">No tienes tareas aún</string>
+    <string name="task_no_subjects">No tienes materias inscritas</string>
+    <string name="task_delete_title">Eliminar tarea</string>
+    <string name="task_delete_message">¿Estás seguro de que deseas eliminar esta tarea?</string>
+    <string name="task_error_no_subject">Debes seleccionar una materia</string>
+    <string name="task_error_empty_title">El título no puede estar vacío</string>
+    <string name="task_error_no_date">Debes seleccionar una fecha de entrega</string>
+    <string name="task_create_first">+ Crear mi primera tarea</string>
+    <string name="subject_import_utadeo">Importar desde Utadeo</string>
+
+    <string name="challenge_daily_title">Reto Diario</string>
+    <string name="challenge_subject_title">Reto asignatura</string>
+    <string name="challenge_subjects_button">Asignaturas</string>
+    <string name="challenge_month_progress">✔ %1$d/%2$d</string>
+    <string name="challenge_completed_label">Completado</string>
+    <string name="challenge_completed_return_tomorrow">Completado, vuelve mañana</string>
+    <string name="challenge_return_tomorrow">Vuelve mañana para más retos</string>
+    <string name="challenge_all_completed_today">¡Lograste superar los retos de hoy!</string>
+    <string name="challenge_no_subjects">Aún no tienes materias inscritas.</string>
+    <string name="challenge_loading_questions">Generando preguntas del reto...</string>
+    <string name="challenge_error_questions">No fue posible obtener las preguntas del reto.</string>
+    <string name="challenge_question_counter">Pregunta %1$d de %2$d</string>
+    <string name="challenge_attempts_remaining">Intentos restantes: %1$d</string>
+    <string name="challenge_correct">Correcto!</string>
+    <string name="challenge_wrong">Respuesta incorrecta</string>
+    <string name="challenge_next">Siguiente</string>
+    <string name="challenge_try_again">Intentar de nuevo</string>
+    <string name="challenge_back_subjects">Volver a asignaturas</string>
+    <string name="challenge_study_suggestion">Se sugiere que estudie sus apuntes e intente más tarde</string>
+    <string name="challenge_subject_completed">Materia completada</string>
+    <string name="ai_model_download_title">Descargando modelo de IA</string>
+    <string name="ai_model_download_progress">Progreso: %1$d%%</string>
+    <string name="ai_model_download_retry">Reintentar descarga</string>
+    <string name="challenge_time_remaining">Tiempo restante: %1$d s</string>
+    <string name="challenge_timeout">Tiempo agotado</string>
+    <string name="challenge_generating_next">Preparando siguiente pregunta...</string>
+    <string name="challenge_result_summary">Correctas: %1$d · Incorrectas: %2$d · Tiempo: %3$d</string>
+    <string name="challenge_next_question_pending">Preparando la siguiente pregunta...</string>
+
+
+
+    <string-array name="challenge_week_days">
+        <item>SUN</item>
+        <item>MON</item>
+        <item>TUE</item>
+        <item>WED</item>
+        <item>THU</item>
+        <item>FRI</item>
+        <item>SAT</item>
+    </string-array>
+</resources>
