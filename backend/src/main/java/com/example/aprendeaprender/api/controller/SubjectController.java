@@ -33,7 +33,7 @@ public class SubjectController {
                 FROM subject WHERE user_id = :userId ORDER BY name
                 """)
                 .param("userId", userId)
-                .query((rs, n) -> new SubjectResponse(
+                .query((rs, n) -> subjectRow(
                         rs.getObject("id", UUID.class), rs.getString("name"),
                         rs.getString("instructor"), (Integer) rs.getObject("utadeo_id"),
                         rs.getObject("created_at", OffsetDateTime.class)))
@@ -134,20 +134,31 @@ public class SubjectController {
         }
     }
 
+    private List<String> loadTopics(UUID subjectId) {
+        return jdbc.sql("SELECT topic FROM subject_topic WHERE subject_id = :id ORDER BY position")
+                .param("id", subjectId).query(String.class).list();
+    }
+
+    private SubjectResponse subjectRow(UUID id, String name, String instructor, Integer utadeoId,
+                                       OffsetDateTime createdAt) {
+        return new SubjectResponse(id, name, instructor, utadeoId, loadTopics(id), createdAt);
+    }
+
     private SubjectResponse findOne(UUID userId, UUID id) {
         return jdbc.sql("""
                 SELECT id, name, instructor, utadeo_id, created_at
                 FROM subject WHERE id = :id AND user_id = :userId
                 """)
                 .param("id", id).param("userId", userId)
-                .query((rs, n) -> new SubjectResponse(
+                .query((rs, n) -> subjectRow(
                         rs.getObject("id", UUID.class), rs.getString("name"), rs.getString("instructor"),
                         (Integer) rs.getObject("utadeo_id"), rs.getObject("created_at", OffsetDateTime.class)))
                 .single();
     }
 
     public record CreateSubjectRequest(String name, String instructor, Integer utadeoId, List<String> topics) {}
-    public record SubjectResponse(UUID id, String name, String instructor, Integer utadeoId, OffsetDateTime createdAt) {}
+    public record SubjectResponse(UUID id, String name, String instructor, Integer utadeoId,
+                                  List<String> topics, OffsetDateTime createdAt) {}
     public record ParticipantRequest(String name, String role) {}
     public record ParticipantResponse(String name, String role) {}
     public record UtadeoSubjectRequest(Integer utadeoId, String name, String instructor, List<ParticipantRequest> participants) {}
