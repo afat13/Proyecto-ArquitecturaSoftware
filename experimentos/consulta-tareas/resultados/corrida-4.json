@@ -1,0 +1,205 @@
+{
+    "metrics": {
+        "iteration_duration": {
+            "avg": 69.56071889364016,
+            "min": 15.652281,
+            "med": 65.05718,
+            "max": 236.387102,
+            "p(90)": 105.90769780000001,
+            "p(95)": 120.5183718
+        },
+        "iterations": {
+            "count": 25865,
+            "rate": 419.04373535739285
+        },
+        "checks": {
+            "passes": 51790,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_tls_handshaking": {
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0
+        },
+        "http_req_connecting": {
+            "p(95)": 0,
+            "avg": 0.026980952848040158,
+            "min": 0,
+            "med": 0,
+            "max": 26.050845,
+            "p(90)": 0
+        },
+        "http_req_sending": {
+            "avg": 0.7696999519984552,
+            "min": 0.00512,
+            "med": 0.017794,
+            "max": 116.332284,
+            "p(90)": 0.0888038,
+            "p(95)": 1.7122389999999952
+        },
+        "data_received": {
+            "count": 8410154794,
+            "rate": 136254501.44255343
+        },
+        "http_reqs": {
+            "count": 25895,
+            "rate": 419.5297710063672
+        },
+        "vus_max": {
+            "max": 30,
+            "value": 30,
+            "min": 30
+        },
+        "http_req_duration{operacion:consulta_tareas}": {
+            "p(95)": 82.92504899999999,
+            "avg": 45.58751810991671,
+            "min": 11.530995,
+            "med": 41.791242,
+            "max": 184.266841,
+            "p(90)": 72.25560720000001,
+            "thresholds": {
+                "p(95)<2000": false
+            }
+        },
+        "vus": {
+            "min": 0,
+            "max": 30,
+            "value": 30
+        },
+        "http_req_receiving": {
+            "avg": 9.207682343155028,
+            "min": 0.069546,
+            "med": 4.908986,
+            "max": 116.534219,
+            "p(90)": 23.524998400000005,
+            "p(95)": 35.136011599999996
+        },
+        "http_req_waiting": {
+            "med": 32.446368,
+            "max": 127.552522,
+            "p(90)": 56.74957920000003,
+            "p(95)": 65.1475648,
+            "avg": 35.6219462268779,
+            "min": 10.230589
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(95)": 82.9193357,
+            "avg": 45.59932852203115,
+            "min": 11.530995,
+            "med": 41.820807,
+            "max": 184.266841,
+            "p(90)": 72.23415360000001
+        },
+        "http_req_blocked": {
+            "avg": 0.0609981418420548,
+            "min": 0.001984,
+            "med": 0.005891,
+            "max": 45.59916,
+            "p(90)": 0.00989,
+            "p(95)": 0.012828699999999993
+        },
+        "data_sent": {
+            "rate": 62954.253469052775,
+            "count": 3885780
+        },
+        "http_req_duration": {
+            "avg": 45.59932852203115,
+            "min": 11.530995,
+            "med": 41.820807,
+            "max": 184.266841,
+            "p(90)": 72.23415360000001,
+            "p(95)": 82.9193357
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 25895,
+            "thresholds": {
+                "rate<0.01": false
+            },
+            "value": 0
+        }
+    },
+    "setup_data": {
+        "tokens": [
+            "RGwgAleMuGnD9OSMJdDm1zH0zfZw6jsccuUK5gRCPNQ",
+            "ZsofdsVtOLJmMI04SX0oKhysptwBItVUAk5_3en5y7Q",
+            "hGy5GHp2wcZCU7qh12tWrChFlpFI8Ixjan8iFNMHdBE",
+            "0zP3TIfj-xt8BvVu2n1WSsn_SJ1kYynyMWFfy3ICHmY",
+            "ZWaJO8G-2g7oRg0JIK_QFtTFJAy6m9YzTmK4ez6Ew3A",
+            "ksfkeenWs5YkiLHo7YcAJY5acZwZQQ-jkjZex7-tnqw",
+            "-By_w71LjweMGkRUiK-VgDl4eCBDE5Z3kRaOPLyIVD0",
+            "FRY9xzKmt20lQFps1nSsHom8EculFNwJv_5rjPrYv_k",
+            "hw86g6Mc5-HpaZ-mlvpD2df9GisX7M_H2g26VVdak_c",
+            "Fxbn3FsiKEZFi4Bfnyr9rMlKC7onNKdDjWFsawgbu-s",
+            "vcf7pKoIHn2UlN9WcYSmo56lemQhuvfFkXiEo62j_4U",
+            "LeWAVROoUkhrdmXzrUoFesoF9iJWyVI-epeT7EmHS7U",
+            "fCHVujATB3aR7G7ByD93TjGp4nV2gZ4z2IJl9LoiDXU",
+            "q2DcEcvw8jVAUevegxU2FrIWxLyjUs1OIr-_Db37WgQ",
+            "7EX7podybKMUYsX6Sl5Vc7FKenLQir7t9m1y-ZCxZzk",
+            "O1e6qqI4Ml3CaB24whxjJ4xXSs98eO8VBbfLmj2p4W0",
+            "gJvafOPy3iFNTGLWwl3vjN36tRq-Hk3YmIZbmPXVNi4",
+            "wrp7ZIrTKhqsrgJSlovvnKWsXBtqR0eeA2xQCsq7NYQ",
+            "Nux2r4cwS50lb6r3oGdDet7O6Y3kVqgYt1sJZ2OTTbk",
+            "ejOUr82JtRiKXh87mFpI25zKRScr_1HQgr3TWL2nb64",
+            "ehRBJOSAAgIElUpXaPfiHhd-RZ_yEcJc4zzZQZ8a0QI",
+            "X_IP6FBFKe9C2liajfjY70_5-TlCK0WveDf-9GPIDwU",
+            "V4NS-oepS8hlEyo6L2X80ABRH-deulcoXrqfhsDUzYQ",
+            "Fpo3V5uWxErwSBD2XXrPyrmVa4zvmO2sTPHfrcPIOfo",
+            "vRflwx2yBZ2P3SrSTpoElGZNnn3Suwnl8upxc7p_1v4",
+            "mdAM9Io5TN54Ui9wvbwvAbR683WVQw6aQNNPplWrcII",
+            "vghFg6yatpUazG2knWSqNVSo6Ju5_oy0G0imEt97bVo",
+            "ZCD35WwqBVevPsEXtltzhFLGn9WR_ScwGDAVSRXwFg0",
+            "Iv2fP7Ex52z_hQlguDCQqwpr9_r0KK0c3lG9Q-Ryc5s",
+            "WvSu_xYFAPiDUO0z7eZvykS2ezOmP51QOYSvp_7n4Lo"
+        ]
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "setup": {
+                "groups": {},
+                "checks": {
+                        "login responde 200": {
+                            "path": "::setup::login responde 200",
+                            "id": "1b14e8aa48c1582cb9c7313a0e13e297",
+                            "passes": 30,
+                            "fails": 0,
+                            "name": "login responde 200"
+                        },
+                        "login devuelve token": {
+                            "name": "login devuelve token",
+                            "path": "::setup::login devuelve token",
+                            "id": "7f32cf9c3e268bb0ec0291a3d9bf968f",
+                            "passes": 30,
+                            "fails": 0
+                        }
+                    },
+                "name": "setup",
+                "path": "::setup",
+                "id": "5c0f8025f7e0b6654089e5b00e950f1a"
+            }
+        },
+        "checks": {
+            "GET /api/tasks responde 200": {
+                "fails": 0,
+                "name": "GET /api/tasks responde 200",
+                "path": "::GET /api/tasks responde 200",
+                "id": "0b9f980d91f02e7847d8d3e22ba6cd44",
+                "passes": 25865
+            },
+            "la respuesta contiene exactamente 1000 tareas": {
+                "id": "d584528c7117cc545d25287de898283a",
+                "passes": 25865,
+                "fails": 0,
+                "name": "la respuesta contiene exactamente 1000 tareas",
+                "path": "::la respuesta contiene exactamente 1000 tareas"
+            }
+        }
+    }
+}

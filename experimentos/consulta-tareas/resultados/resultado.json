@@ -1,0 +1,101 @@
+{
+  "criterio": "mediana del p95 de las corridas 2, 3 y 4",
+  "corrida_1_descartada_por": "calentamiento preregistrado",
+  "corridas": [
+    {
+      "corrida": 1,
+      "calentamiento": true,
+      "p95_ms": 135.73811775000001,
+      "mediana_ms": 50.083576,
+      "promedio_ms": 60.767610368170146,
+      "solicitudes": 21406,
+      "solicitudes_por_segundo": 345.9496595334115,
+      "tasa_fallos_http": null,
+      "checks_exitosos": 42812,
+      "checks_fallidos": 0,
+      "archivo_crudo": "corrida-1.json",
+      "claves_duracion_detectadas": [
+        "avg",
+        "max",
+        "med",
+        "min",
+        "p(90)",
+        "p(95)",
+        "thresholds"
+      ]
+    },
+    {
+      "corrida": 2,
+      "calentamiento": false,
+      "p95_ms": 103.71587135,
+      "mediana_ms": 47.704305,
+      "promedio_ms": 53.72602859084858,
+      "solicitudes": 22540,
+      "solicitudes_por_segundo": 364.4470907623565,
+      "tasa_fallos_http": null,
+      "checks_exitosos": 45080,
+      "checks_fallidos": 0,
+      "archivo_crudo": "corrida-2.json",
+      "claves_duracion_detectadas": [
+        "avg",
+        "max",
+        "med",
+        "min",
+        "p(90)",
+        "p(95)",
+        "thresholds"
+      ]
+    },
+    {
+      "corrida": 3,
+      "calentamiento": false,
+      "p95_ms": 90.75449519999998,
+      "mediana_ms": 45.623075,
+      "promedio_ms": 49.62370288956805,
+      "solicitudes": 24398,
+      "solicitudes_por_segundo": 395.0904943132435,
+      "tasa_fallos_http": null,
+      "checks_exitosos": 48796,
+      "checks_fallidos": 0,
+      "archivo_crudo": "corrida-3.json",
+      "claves_duracion_detectadas": [
+        "avg",
+        "max",
+        "med",
+        "min",
+        "p(90)",
+        "p(95)",
+        "thresholds"
+      ]
+    },
+    {
+      "corrida": 4,
+      "calentamiento": false,
+      "p95_ms": 82.92504899999999,
+      "mediana_ms": 41.791242,
+      "promedio_ms": 45.58751810991671,
+      "solicitudes": 25895,
+      "solicitudes_por_segundo": 419.5297710063672,
+      "tasa_fallos_http": null,
+      "checks_exitosos": 51790,
+      "checks_fallidos": 0,
+      "archivo_crudo": "corrida-4.json",
+      "claves_duracion_detectadas": [
+        "avg",
+        "max",
+        "med",
+        "min",
+        "p(90)",
+        "p(95)",
+        "thresholds"
+      ]
+    }
+  ],
+  "p95_corridas_validas_ms": [
+    103.71587135,
+    90.75449519999998,
+    82.92504899999999
+  ],
+  "linea_base_p95_ms": 90.75449519999998,
+  "advertencia": "Este resumen solo es válido si las corridas no presentan errores de instrumentación o de respuesta."
+}
