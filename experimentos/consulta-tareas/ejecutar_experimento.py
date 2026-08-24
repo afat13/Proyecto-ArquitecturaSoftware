@@ -7,7 +7,9 @@ No modifica la hipótesis preregistrada y conserva cada salida cruda de k6.
 
 from __future__ import annotations
 
+import csv
 import ctypes
+import io
 import json
 import os
 import platform
@@ -23,11 +25,15 @@ ROOT = Path(__file__).resolve().parents[2]
 EXP = Path(__file__).resolve().parent
 RESULTS = EXP / "resultados"
 BASE_URL = os.environ.get("BASE_URL_HOST", "http://localhost:8080")
-EMAIL = "estudiante@aprende.local"
+BOOTSTRAP_EMAIL = "estudiante@aprende.local"
 PASSWORD = "Aprende123!"
 DB_USER = os.environ.get("POSTGRES_USER", "aprende")
 DB_NAME = os.environ.get("POSTGRES_DB", "aprende_aprender")
 RUNS = 4
+EXPECTED_USERS = 5000
+EXPECTED_SUBJECTS = 25000
+EXPECTED_TASKS_PER_USER = 1000
+EXPECTED_TASKS = EXPECTED_USERS * EXPECTED_TASKS_PER_USER
 
 
 def run(command: list[str], *, input_text: str | None = None, capture: bool = True) -> subprocess.CompletedProcess[str]:
@@ -109,11 +115,11 @@ def wait_for_api(timeout_seconds: int = 180) -> None:
     raise RuntimeError("La API no alcanzó estado UP dentro del tiempo esperado")
 
 
-def ensure_test_user() -> None:
+def ensure_bootstrap_user() -> None:
     status, _ = request_json(
         "/api/auth/register",
         {
-            "email": EMAIL,
+            "email": BOOTSTRAP_EMAIL,
             "password": PASSWORD,
             "firstName": "Estudiante",
             "lastName": "Prueba",
@@ -121,23 +127,24 @@ def ensure_test_user() -> None:
         },
     )
     if status in (200, 201):
-        print("Usuario de experimento creado")
+        print("Usuario bootstrap del experimento creado")
         return
 
     login_status, login_body = request_json(
         "/api/auth/login",
-        {"email": EMAIL, "password": PASSWORD},
+        {"email": BOOTSTRAP_EMAIL, "password": PASSWORD},
     )
     if login_status != 200:
         raise RuntimeError(
-            f"No se pudo crear ni autenticar el usuario de experimento. "
+            f"No se pudo crear ni autenticar el usuario bootstrap. "
             f"registro={status}, login={login_status}, respuesta={login_body}"
         )
-    print("Usuario de experimento ya existente y autenticable")
+    print("Usuario bootstrap ya existente y autenticable")
 
 
 def load_seed() -> None:
     sql = (EXP / "seed.sql").read_text(encoding="utf-8")
+    print("Cargando 5.000 usuarios y 5.000.000 de tareas; esta etapa puede tardar varios minutos.")
     run(
         ["docker", "compose", "exec", "-T", "db", "psql", "-v", "ON_ERROR_STOP=1", "-U", DB_USER, "-d", DB_NAME],
         input_text=sql,
@@ -154,6 +161,36 @@ def verify_seed() -> str:
         ],
         input_text=sql,
     )
+
+    rows = list(csv.DictReader(io.StringIO(result.stdout)))
+    if len(rows) != 1:
+        raise RuntimeError("La verificación de la semilla no devolvió exactamente una fila")
+
+    row = rows[0]
+    expected = {
+        "usuarios": EXPECTED_USERS,
+        "correos_unicos": EXPECTED_USERS,
+        "materias": EXPECTED_SUBJECTS,
+        "total_tareas": EXPECTED_TASKS,
+        "min_tareas_usuario": EXPECTED_TASKS_PER_USER,
+        "max_tareas_usuario": EXPECTED_TASKS_PER_USER,
+        "usuarios_con_1000_tareas": EXPECTED_USERS,
+    }
+
+    for field, expected_value in expected.items():
+        actual = int(float(row[field]))
+        if actual != expected_value:
+            raise RuntimeError(
+                f"Semilla inválida: {field}={actual}, esperado={expected_value}"
+            )
+
+    if float(row["promedio_tareas_usuario"]) != float(EXPECTED_TASKS_PER_USER):
+        raise RuntimeError(
+            f"Semilla inválida: promedio_tareas_usuario={row['promedio_tareas_usuario']}, "
+            f"esperado={EXPECTED_TASKS_PER_USER}"
+        )
+
+    print("Semilla verificada: 5.000 usuarios únicos y 5.000.000 de tareas")
     return result.stdout
 
 
@@ -172,15 +209,14 @@ def capture_context() -> dict:
         "postgresql": "postgres:16-alpine",
         "operacion": "GET /api/tasks",
         "usuarios_virtuales": int(os.environ.get("K6_VUS", "30")),
+        "identidades_k6": "una cuenta distinta por VU",
         "duracion": os.environ.get("K6_DURATION", "60s"),
         "corridas": RUNS,
         "corrida_calentamiento": 1,
-        "volumen_tareas": 10000,
-        "distribucion": {
-            "materia_1": 8000,
-            "materias_2_3_total": 1500,
-            "materias_4_8_total": 500,
-        },
+        "usuarios_semilla": EXPECTED_USERS,
+        "materias_por_usuario": 5,
+        "tareas_por_usuario": EXPECTED_TASKS_PER_USER,
+        "volumen_tareas_total": EXPECTED_TASKS,
         "notas_maquina": os.environ.get("MAQUINA_NOTAS", ""),
     }
 
@@ -204,9 +240,13 @@ def execute_k6(run_number: int) -> None:
 def main() -> int:
     RESULTS.mkdir(parents=True, exist_ok=True)
 
+    vus = int(os.environ.get("K6_VUS", "30"))
+    if vus < 1 or vus > EXPECTED_USERS:
+        raise RuntimeError(f"K6_VUS debe estar entre 1 y {EXPECTED_USERS}")
+
     run(["docker", "compose", "up", "-d", "--build", "db", "api"], capture=False)
     wait_for_api()
-    ensure_test_user()
+    ensure_bootstrap_user()
     load_seed()
 
     verification = verify_seed()
