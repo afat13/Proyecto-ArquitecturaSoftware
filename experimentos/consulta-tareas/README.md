@@ -2,7 +2,7 @@
 
 Este directorio contiene el experimento reproducible del escenario principal de rendimiento del Corte 1.
 
-La hipótesis preregistrada está en `docs/experimento/01-hipotesis-inicial.md`. No debe modificarse después de ejecutar la medición para hacerla coincidir con los resultados.
+La hipótesis inicial está en `docs/experimento/01-hipotesis-inicial.md` y se conserva sin modificaciones. Antes de la primera medición se revisó la semilla y el ajuste quedó documentado en `docs/experimento/02-semilla.md`.
 
 ## Operación medida
 
@@ -12,17 +12,21 @@ GET /api/tasks
 
 ## Semilla
 
-La semilla utiliza una cuenta de prueba y genera 10.000 tareas distribuidas entre 8 materias:
+La semilla genera:
 
-- Materia 1: 8.000 tareas (80 %).
-- Materias 2 y 3: 750 tareas cada una (15 % en total).
-- Materias 4 a 8: 100 tareas cada una (5 % en total).
+- 5.000 cuentas experimentales distintas;
+- 5 materias por cuenta;
+- 25.000 materias en total;
+- 1.000 tareas por usuario;
+- 5.000.000 de tareas en total.
 
-`seed.sql` regenera los datos del usuario `estudiante@aprende.local`. `verificar-semilla.sql` comprueba numéricamente el volumen y la distribución antes de medir.
+Las cuentas siguen el patrón `carga0001@aprende.local` hasta `carga5000@aprende.local`.
+
+`seed.sql` regenera los datos experimentales. `verificar-semilla.sql` comprueba numéricamente el volumen antes de medir y el ejecutor aborta si no coincide con lo esperado.
 
 ## Carga
 
-Valores preregistrados por defecto:
+Valores por defecto:
 
 ```text
 30 usuarios virtuales
@@ -30,7 +34,9 @@ Valores preregistrados por defecto:
 4 corridas
 ```
 
-La corrida 1 es calentamiento. Las corridas 2, 3 y 4 se utilizan para el resultado siempre que no presenten errores. La línea base es la mediana de sus valores p95.
+Cada VU inicia sesión con una cuenta distinta, por lo que los 30 usuarios virtuales no comparten una única sesión.
+
+La corrida 1 es calentamiento. Las corridas 2, 3 y 4 se utilizan para el resultado siempre que sean válidas. La línea base es la mediana de sus valores p95.
 
 ## Requisitos
 
@@ -38,6 +44,7 @@ La corrida 1 es calentamiento. Las corridas 2, 3 y 4 se utilizan para el resulta
 - Python 3.
 - Puerto 8080 disponible para la API.
 - Puerto 5432 disponible para PostgreSQL.
+- Espacio en disco suficiente para PostgreSQL con cinco millones de filas de tareas.
 
 No es necesario instalar PostgreSQL ni k6 localmente: se ejecutan en contenedores.
 
@@ -57,17 +64,20 @@ python .\experimentos\consulta-tareas\ejecutar_experimento.py
 python3 ./experimentos/consulta-tareas/ejecutar_experimento.py
 ```
 
-El ejecutor realiza lo siguiente:
+El ejecutor:
 
 1. construye e inicia PostgreSQL y la API;
 2. espera a que `/actuator/health` reporte `UP`;
-3. crea o valida el usuario de prueba;
-4. carga la semilla;
-5. ejecuta la consulta de verificación de distribución;
-6. registra las condiciones de la ejecución y el hash Git;
-7. ejecuta cuatro corridas k6;
-8. conserva la salida cruda de cada corrida;
-9. calcula la mediana del p95 de las corridas 2–4.
+3. crea un usuario bootstrap temporal para disponer de un hash BCrypt válido;
+4. genera las 5.000 cuentas experimentales;
+5. genera 25.000 materias y 5.000.000 de tareas;
+6. verifica automáticamente el volumen y las 1.000 tareas por usuario;
+7. registra máquina, fecha, parámetros y hash Git;
+8. ejecuta cuatro corridas k6 con identidades independientes;
+9. conserva la salida cruda;
+10. calcula la mediana del p95 de las corridas 2–4.
+
+La primera carga de cinco millones de tareas puede tardar varios minutos según CPU, disco y memoria disponibles.
 
 ## Archivos generados
 
@@ -87,17 +97,20 @@ corrida-4.log
 resultado.json
 ```
 
-No edite manualmente los archivos crudos. Deben conservarse para poder rastrear el resultado de línea base.
+No edite manualmente los archivos crudos.
 
 ## Condiciones de validez
 
 Antes de presentar una corrida como válida se debe comprobar que:
 
-- el login responde correctamente;
+- los logins de las identidades usadas responden correctamente;
 - `GET /api/tasks` responde HTTP 200;
-- las respuestas contienen tareas;
-- la semilla tiene 10.000 tareas y la distribución esperada;
-- la herramienta no reporta fallos que invaliden la corrida;
-- el hash de `contexto.json` corresponde al commit que se está defendiendo.
+- cada respuesta contiene exactamente 1.000 tareas;
+- existen 5.000 usuarios experimentales con correos únicos;
+- existen 25.000 materias;
+- existen 5.000.000 de tareas;
+- cada usuario tiene exactamente 1.000 tareas;
+- k6 no reporta fallos que invaliden la corrida;
+- el hash de `contexto.json` corresponde al commit medido.
 
 Una corrida fallida se conserva como evidencia, pero no se presenta como una corrida exitosa.
