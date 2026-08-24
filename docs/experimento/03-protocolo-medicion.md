@@ -2,32 +2,40 @@
 
 ## Objetivo
 
-Obtener una línea base reproducible del tiempo de respuesta de `GET /api/tasks` bajo carga concurrente y con la semilla registrada para el Corte 1.
+Obtener una línea base reproducible del tiempo de respuesta de `GET /api/tasks` bajo carga concurrente sobre una base con 5.000 usuarios y 5.000.000 de tareas.
 
 ## Referencias
 
 - Hipótesis: `docs/experimento/01-hipotesis-inicial.md`
-- Semilla: `experimentos/consulta-tareas/seed.sql`
+- Semilla documentada: `docs/experimento/02-semilla.md`
+- SQL de semilla: `experimentos/consulta-tareas/seed.sql`
 - Verificación: `experimentos/consulta-tareas/verificar-semilla.sql`
-- Instrumento: `experimentos/consulta-tareas/carga.js`
+- Carga: `experimentos/consulta-tareas/carga.js`
 - Ejecutor: `experimentos/consulta-tareas/ejecutar_experimento.py`
 - Resumen: `experimentos/consulta-tareas/resumir_resultados.py`
 
-## Herramienta de carga
+## Condición de datos
 
-k6, ejecutado mediante Docker para no depender de una instalación global.
+- 5.000 cuentas distintas.
+- 5 materias por cuenta.
+- 1.000 tareas por cuenta.
+- 25.000 materias.
+- 5.000.000 de tareas.
 
-## Parámetros preregistrados
+La modificación de la semilla se realizó antes de la primera medición y la hipótesis inicial permanece intacta.
 
-- 30 usuarios virtuales.
+## Parámetros de carga
+
+- 30 usuarios virtuales por defecto.
+- Una cuenta distinta por VU.
 - 60 segundos por corrida.
-- 4 corridas en total.
-- Corrida 1: calentamiento y descartada del resultado final.
-- Corridas 2, 3 y 4: candidatas a válidas.
+- 4 corridas.
+- Corrida 1: calentamiento, excluida del resultado.
+- Corridas 2, 3 y 4: usadas para la línea base si son válidas.
 
 ## Métrica principal
 
-p95 de `http_req_duration` para la operación de consulta de tareas, expresado en milisegundos.
+p95 de `http_req_duration` para `GET /api/tasks`, en milisegundos.
 
 ## Métricas secundarias
 
@@ -37,44 +45,37 @@ p95 de `http_req_duration` para la operación de consulta de tareas, expresado e
 - tasa de fallos HTTP;
 - checks exitosos y fallidos.
 
-## Validaciones del instrumento
+## Validaciones
 
-Durante el `setup`, k6 debe comprobar que `POST /api/auth/login` responda 200 y entregue un token.
+En `setup`, k6 inicia sesión con una cuenta diferente para cada VU y comprueba respuesta 200 y presencia de token.
 
-Durante la carga, cada solicitud debe comprobar que:
+Durante la carga se valida que cada `GET /api/tasks`:
 
-1. `GET /api/tasks` responda 200;
-2. el cuerpo pueda interpretarse como arreglo;
-3. la respuesta contenga tareas.
+1. responda 200;
+2. devuelva un arreglo JSON;
+3. contenga exactamente 1.000 tareas.
 
-## Procedimiento
+Antes de iniciar k6, el ejecutor valida automáticamente que la semilla tenga exactamente 5.000 usuarios únicos, 25.000 materias, 5.000.000 de tareas y 1.000 tareas para cada usuario.
 
-1. Ubicarse en la raíz del commit que se desea medir.
-2. Comprobar que Docker esté disponible.
-3. No modificar la hipótesis preregistrada.
-4. Ejecutar en Windows:
+## Ejecución
+
+Windows:
 
 ```powershell
 python .\experimentos\consulta-tareas\ejecutar_experimento.py
 ```
 
-En Linux/macOS:
+Linux/macOS:
 
 ```bash
 python3 ./experimentos/consulta-tareas/ejecutar_experimento.py
 ```
 
-5. El ejecutor inicia y construye PostgreSQL y la API.
-6. Espera a que `/actuator/health` reporte `UP`.
-7. Crea o valida el usuario de experimento.
-8. Regenera la semilla.
-9. Ejecuta la verificación SQL de volumen y distribución.
-10. Guarda contexto de máquina, fecha y hash Git.
-11. Ejecuta cuatro corridas.
-12. Conserva JSON y logs crudos de cada corrida.
-13. Calcula un resumen sin modificar los archivos originales.
+El ejecutor construye API y PostgreSQL, carga y verifica la semilla, registra fecha, máquina, commit y parámetros, realiza las cuatro corridas y conserva los JSON y logs originales.
 
-## Resultado de línea base
+La creación inicial de cinco millones de tareas puede tardar varios minutos y requiere espacio suficiente en disco.
+
+## Resultado
 
 Si las corridas 2, 3 y 4 son válidas:
 
@@ -82,8 +83,8 @@ Si las corridas 2, 3 y 4 son válidas:
 
 ## Corrida inválida
 
-Una corrida no se presenta como exitosa si falla el login, existen respuestas HTTP inválidas, la semilla es incorrecta, API o DB se caen, k6 falla o cambian las condiciones sin registrarlo. Los archivos originales deben conservarse incluso si una corrida resulta inválida.
+Una corrida no se acepta si falla algún login, hay respuestas HTTP inválidas, una respuesta no contiene 1.000 tareas, la semilla no coincide con el volumen esperado, la API o PostgreSQL fallan, k6 termina con error o cambian condiciones sin registrarlas.
 
-## Principio de interpretación
+## Interpretación
 
-La medición describe comportamiento observado bajo condiciones registradas. No identifica por sí sola una causa.
+El resultado describe `GET /api/tasks` para usuarios con 1.000 tareas dentro de una base con cinco millones de tareas. No identifica por sí solo una causa de degradación ni representa todos los posibles tamaños de producción.
