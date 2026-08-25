@@ -1,0 +1,18 @@
+﻿@startuml
+left to right direction
+skinparam shadowing false
+
+actor "Estudiante" as estudiante
+rectangle "AplicaciÃ³n Android\nKotlin + Jetpack Compose\n<<Container>>" as android
+rectangle "API REST\nSpring Boot 3.3.4 / Java 21\n<<Container>>" as api
+database "PostgreSQL 16\n<<Container>>" as db
+rectangle "Gemma + LiteRT-LM\nlocal\n<<Container>>" as gemma
+rectangle "UTADEO\n<<Sistema externo>>" as utadeo
+
+estudiante --> android : usa la aplicaciÃ³n
+android --> api : HTTPS/HTTP JSON + Bearer
+api --> db : JDBC
+android --> gemma : inferencia local
+android --> utadeo : sincronizaciÃ³n acadÃ©mica
+android --> api : persiste resultados sincronizados
+@enduml

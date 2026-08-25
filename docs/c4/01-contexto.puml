@@ -1,0 +1,20 @@
+﻿@startuml
+left to right direction
+skinparam shadowing false
+skinparam rectangle {
+  RoundCorner 10
+}
+
+actor "Estudiante" as estudiante
+actor "UTADEO" as utadeo
+rectangle "Aprende a Aprender\n<<Sistema>>" as sistema
+rectangle "Servicio de modelo Gemma\nlocal en el dispositivo\n<<Sistema externo/local>>" as gemma
+
+estudiante --> sistema : organiza materias, tareas y retos
+sistema --> utadeo : obtiene informaciÃ³n acadÃ©mica
+sistema --> gemma : genera preguntas localmente
+
+note right of sistema
+Android + API REST Spring Boot + PostgreSQL
+end note
+@enduml
