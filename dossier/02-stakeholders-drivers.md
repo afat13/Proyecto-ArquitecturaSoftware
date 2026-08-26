@@ -28,7 +28,11 @@ La recuperación de contraseña y la verificación de correo se reconocen como n
 
 ### 4. Rendimiento ante crecimiento de datos
 
-Un estudiante puede acumular materias y tareas. La operación `GET /api/tasks` se selecciona como escenario inicial para obtener una línea base reproducible con 10.000 tareas y carga concurrente. En esta etapa todavía no se presupone cuál componente será responsable de un posible deterioro.
+`GET /api/tasks` se seleccionó como operación de referencia para obtener una línea base reproducible bajo carga concurrente. La hipótesis preregistrada originalmente planteó una cuenta con 10.000 tareas; antes de medir, el diseño experimental se revisó y la medición real utilizó 5.000 usuarios distintos con 1.000 tareas por usuario, para 5.000.000 de tareas totales.
+
+La carga medida utilizó 30 usuarios virtuales concurrentes con una cuenta distinta por VU y cuatro corridas de 60 segundos. La corrida 1 se trató como calentamiento y la línea base resultante fue la mediana del p95 de las corridas 2–4: aproximadamente 90,75 ms.
+
+Este resultado no identifica por sí solo una causa de rendimiento y no debe presentarse como prueba literal de la semilla original de 10.000 tareas.
 
 ### 5. Reproducibilidad
 
@@ -68,8 +72,8 @@ Esta priorización es preliminar. La matriz formal de atributos de calidad y su 
 
 ## Preguntas abiertas
 
-- ¿El listado completo de 10.000 tareas es una carga representativa suficiente para revelar el fenómeno esperado?
-- ¿El escenario requiere paginación u otra estrategia después de observar la línea base?
+- ¿Cómo cambia la línea base si aumenta el número de tareas por usuario o la concurrencia?
+- ¿El escenario requiere paginación u otra estrategia si futuros experimentos muestran degradación significativa?
 - ¿Qué nivel de disponibilidad real se requerirá cuando el backend deje de ejecutarse solo en un entorno académico/local?
 - ¿Qué mecanismo se utilizará posteriormente para verificación de correo y recuperación de contraseña?
 
