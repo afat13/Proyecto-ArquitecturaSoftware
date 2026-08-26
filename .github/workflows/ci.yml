@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, migracion-postgresql]
   pull_request:
-    branches: [main]
+    branches: [main, migracion-postgresql]
 
 jobs:
   backend:
