@@ -85,12 +85,29 @@ La recuperación de contraseña y la verificación de correo electrónico no se 
 7. La autenticación del backend utiliza sesiones mediante token Bearer y almacena solamente el hash SHA-256 del token en la base de datos.
 8. Las contraseñas de usuarios se almacenan mediante BCrypt.
 
+## Estado experimental actual
+
+La hipótesis histórica preregistrada se conserva sin modificación y planteaba observar degradación con una cuenta de 10.000 tareas distribuidas de forma desigual. Antes de ejecutar la primera medición real, el diseño experimental se ajustó y quedó documentado separadamente.
+
+El escenario finalmente medido fue:
+
+- 5.000 usuarios experimentales distintos;
+- 5 materias por usuario;
+- 1.000 tareas por usuario;
+- 5.000.000 de tareas totales;
+- 30 usuarios virtuales concurrentes, cada uno con una cuenta distinta;
+- operación observada: `GET /api/tasks`;
+- cuatro corridas de 60 segundos, con la primera tratada como calentamiento;
+- línea base: mediana del p95 de las corridas 2, 3 y 4 = aproximadamente 90,75 ms.
+
+Este resultado caracteriza únicamente el escenario revisado bajo las condiciones registradas. No debe presentarse como una medición literal de la semilla original de 10.000 tareas.
+
 ## Supuestos pendientes de verificar con evidencia de ejecución
 
 - Que el entorno completo pueda levantarse en las máquinas de los tres integrantes sin ajustes particulares adicionales.
 - Que la integración UTADEO mantenga estable el formato de sus respuestas durante el semestre.
-- Que la consulta del listado completo de tareas muestre degradación observable al utilizar una semilla de 10.000 tareas bajo carga concurrente.
-- Que el umbral inicialmente utilizado para el escenario de rendimiento resulte adecuado después de obtener la primera línea base.
+- Que el umbral de rendimiento adoptado siga siendo adecuado al ampliar o modificar el escenario de carga.
+- Que el comportamiento observado se mantenga en hardware, red o configuraciones distintas a las registradas en la línea base.
 
 Los supuestos anteriores no se presentan como hechos hasta que exista evidencia reproducible.
 
