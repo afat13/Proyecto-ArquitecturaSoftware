@@ -1,0 +1,49 @@
+﻿@startuml
+left to right direction
+skinparam shadowing false
+
+package "API Spring Boot" {
+
+  rectangle "SecurityConfig +
+TokenAuthenticationFilter
+<<Component>>" as security
+
+  rectangle "AuthController / AuthService
+<<Component>>" as auth
+
+  rectangle "ProfileController
+<<Component>>" as profile
+
+  rectangle "SubjectController
+<<Component>>" as subjects
+
+  rectangle "TaskController
+<<Component>>" as tasks
+
+  rectangle "ChallengeController
+<<Component>>" as challenges
+
+  rectangle "JDBC / Flyway
+<<Component>>" as persistence
+}
+
+database "PostgreSQL 16" as db
+rectangle "Android / Retrofit" as android
+
+android --> security : Bearer + HTTP
+
+security --> auth
+security --> profile
+security --> subjects
+security --> tasks
+security --> challenges
+
+auth --> persistence
+profile --> persistence
+subjects --> persistence
+tasks --> persistence
+challenges --> persistence
+
+persistence --> db : SQL/JDBC
+
+@enduml
