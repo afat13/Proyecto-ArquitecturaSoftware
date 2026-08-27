@@ -18,12 +18,6 @@ Regla principal de persistencia:
 Android -> API REST -> PostgreSQL
 ```
 
-Nunca:
-
-```text
-Android -> PostgreSQL
-```
-
 ## Funcionalidades principales
 
 - Registro, inicio y cierre de sesión mediante API propia.
@@ -72,8 +66,9 @@ Java 21 solo es necesario localmente si el backend se ejecuta fuera de Docker.
 ```bash
 git clone https://github.com/afat13/Proyecto-ArquitecturaSoftware.git
 cd Proyecto-ArquitecturaSoftware
-git switch migracion-postgresql
 ```
+
+La rama `main` contiene la versión integrada y actual del proyecto.
 
 # 3. Variables de entorno
 
@@ -223,7 +218,7 @@ Jobs principales:
 1. Backend y PostgreSQL: PostgreSQL 16, JDK 21, pruebas, Docker Compose y validación del experimento.
 2. Android: JDK 17, Android SDK 36, pruebas unitarias, lint y compilación APK.
 
-Se ejecuta con push sobre `main` y `migracion-postgresql`, y en pull requests hacia `main`.
+Se ejecuta con push sobre `main` y `migracion-postgresql`, y en pull requests hacia `main` o `migracion-postgresql`.
 
 # 9. Experimento reproducible de línea base
 
@@ -312,13 +307,18 @@ Proyecto-ArquitecturaSoftware/
 ├── app/                           # Aplicación Android
 ├── backend/                       # API Spring Boot
 │   └── src/main/resources/db/migration/
-├── dossier/                       # Documentación arquitectónica
+├── dossier/                       # Documentación arquitectónica y registros de IA
 ├── docs/experimento/              # Hipótesis y documentación experimental
 ├── experimentos/consulta-tareas/  # Semilla, k6, ejecutor y resultados
 ├── .github/workflows/ci.yml       # CI
 ├── docker-compose.yml             # PostgreSQL + API + k6
 └── .env.example
 ```
+
+En `dossier/` también se conservan los registros críticos de sugerencias de IA y la reformulación de escenarios de calidad:
+
+- `dossier/07-registro-critico-ia-riesgos.md`;
+- `dossier/08-registro-ia-escenarios-calidad.md`.
 
 # 11. Seguridad
 
