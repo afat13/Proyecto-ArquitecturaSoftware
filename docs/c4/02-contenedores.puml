@@ -1,18 +1,20 @@
-﻿@startuml
+@startuml
 left to right direction
 skinparam shadowing false
-
 actor "Estudiante" as estudiante
-rectangle "AplicaciÃ³n Android\nKotlin + Jetpack Compose\n<<Container>>" as android
+rectangle "Aplicación Android\nKotlin + Jetpack Compose\n<<Container>>" as android
 rectangle "API REST\nSpring Boot 3.3.4 / Java 21\n<<Container>>" as api
 database "PostgreSQL 16\n<<Container>>" as db
-rectangle "Gemma + LiteRT-LM\nlocal\n<<Container>>" as gemma
+rectangle "Gemma + LiteRT-LM\nlocal en Android\n<<Container>>" as gemma
 rectangle "UTADEO\n<<Sistema externo>>" as utadeo
-
-estudiante --> android : usa la aplicaciÃ³n
-android --> api : HTTPS/HTTP JSON + Bearer
-api --> db : JDBC
+estudiante --> android : usa la aplicación
+android --> api : HTTP/JSON + Bearer\nRetrofit/OkHttp
+api --> db : JDBC / Spring JdbcClient
 android --> gemma : inferencia local
-android --> utadeo : sincronizaciÃ³n acadÃ©mica
-android --> api : persiste resultados sincronizados
+android --> utadeo : sincronización académica
+android --> api : persiste datos sincronizados
+note bottom of api
+Flyway versiona el esquema al arrancar;
+no es una capa de negocio separada.
+end note
 @enduml

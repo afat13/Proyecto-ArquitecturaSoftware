@@ -1,33 +1,43 @@
-﻿# Atributos de calidad priorizados
+# 03 — Atributos de calidad
 
-## Objetivo
+Para este corte nos interesa principalmente seguridad, rendimiento y modificabilidad. Los demás siguen siendo importantes, pero esos tres son los que más se ven en las decisiones actuales.
 
-Registrar los atributos de calidad que condicionan las decisiones arquitectÃ³nicas del sistema Aprende a Aprender durante el Corte 1.
+| Atributo | Prioridad | Por qué |
+| --- | --- | --- |
+| Seguridad | Alta | hay cuentas, sesiones y datos académicos por usuario |
+| Rendimiento | Alta | `GET /api/tasks` puede devolver colecciones grandes |
+| Modificabilidad | Alta | Android no debe quedar amarrado a PostgreSQL |
+| Reproducibilidad | Alta | la medición y la arquitectura deben poder revisarse |
+| Disponibilidad | Media | si API o DB caen no se puede persistir ni consultar |
+| Interoperabilidad | Media | UTADEO es una dependencia externa |
 
-## Matriz de priorizaciÃ³n
+## Escenario principal: TASK-PERF-01
 
-| Atributo | Prioridad | Motivo | Evidencia o mecanismo actual |
-| --- | --- | --- | --- |
-| Rendimiento | Alta | La consulta de tareas es una operaciÃ³n frecuente y debe responder de forma predecible bajo concurrencia. | Experimento reproducible sobre `GET /api/tasks`, k6 y PostgreSQL. |
-| Seguridad | Alta | El sistema maneja cuentas, contraseÃ±as, sesiones y datos acadÃ©micos. | BCrypt, token Bearer aleatorio, hash SHA-256 del token almacenado y Spring Security. |
-| Modificabilidad | Media-Alta | Android, API y persistencia deben poder evolucionar sin acoplar la UI directamente a PostgreSQL. | SeparaciÃ³n Android -> API REST -> PostgreSQL, Retrofit y repositorios. |
-| Disponibilidad | Media | La aplicaciÃ³n depende de la API para persistencia remota; una caÃ­da impide sincronizar y consultar datos remotos. | Healthcheck de API y PostgreSQL, Docker Compose y CI. |
-| Observabilidad | Media | Para reproducir y explicar resultados deben conservarse contexto, logs y mÃ©tricas. | Actuator, logs de k6, JSON crudos y `contexto.json`. |
+**Fuente:** usuarios autenticados representados con k6.
 
-## Tensiones arquitectÃ³nicas
+**Estímulo:** 30 usuarios concurrentes consultan `GET /api/tasks`.
 
-### Rendimiento vs. simplicidad
+**Entorno:** 5.000 usuarios, 5 materias por usuario y 1.000 tareas por usuario.
 
-Devolver el listado completo de tareas simplifica el cliente, pero respuestas grandes pueden incrementar consulta, serializaciÃ³n, memoria y transferencia. La lÃ­nea base permite observar el comportamiento antes de proponer optimizaciones.
+**Respuesta esperada:** HTTP 200 y exactamente las 1.000 tareas de la cuenta que hizo la petición.
 
-### Seguridad vs. comodidad
+**Medida:** p95 del tiempo HTTP. Se hicieron cuatro corridas de 60 segundos y la primera quedó como calentamiento.
 
-Exigir autenticaciÃ³n para los recursos agrega trabajo a cada solicitud, pero evita exponer datos de otros usuarios. La separaciÃ³n por `user_id` y el token Bearer forman parte del contrato de seguridad.
+**Resultado:** la mediana de los p95 de las corridas 2–4 fue **90,7544952 ms**.
 
-### Modificabilidad vs. nÃºmero de componentes
+## Escenario de seguridad
 
-Separar Android, API y PostgreSQL agrega despliegue y configuraciÃ³n, pero evita credenciales de base de datos en el cliente y permite modificar persistencia o reglas del backend sin acoplarlas a la UI.
+En `TaskController.list()`, el usuario sale de `Authentication` y la consulta usa:
 
-## Atributo principal del escenario
+`WHERE t.user_id = :userId`
 
-Para el escenario cuantitativo del Corte 1 se prioriza **rendimiento**, observado mediante el p95 del tiempo HTTP de `GET /api/tasks` bajo carga concurrente.
+Ese filtro es la evidencia que usamos para decir que la consulta de tareas queda separada por usuario.
+
+## Decisiones que salen de estos atributos
+
+| Atributo | Decisión actual |
+| --- | --- |
+| Seguridad | Spring Security, Bearer, BCrypt y hash SHA-256 de sesión |
+| Rendimiento | medir antes de meter optimizaciones |
+| Modificabilidad | Android → API REST → PostgreSQL |
+| Reproducibilidad | Docker Compose, Flyway, k6 y resultados en Git |

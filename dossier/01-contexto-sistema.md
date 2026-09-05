@@ -1,123 +1,74 @@
-# Contexto del sistema — Aprende a Aprender
+# 01 — Contexto del sistema
 
-## Propósito
+## Qué es Aprende a Aprender
 
-Aprende a Aprender es una aplicación móvil Android orientada a la organización académica y al refuerzo del estudio. El sistema permite a un estudiante administrar materias y tareas, sincronizar información académica disponible en UTADEO, recibir notificaciones y realizar retos de estudio cuyas preguntas pueden ser generadas localmente mediante Gemma.
+Aprende a Aprender es una aplicación Android para organizar materias y tareas y reforzar el estudio con retos. El proyecto ya existía antes de esta materia y en este corte migramos la persistencia principal a una API Spring Boot con PostgreSQL.
 
-## Alcance actual
+El estudiante usa la aplicación Android. Desde ahí puede iniciar sesión, manejar materias y tareas, sincronizar información de UTADEO y hacer retos.
 
-El sistema actual se compone de:
-
-- una aplicación Android desarrollada con Kotlin y Jetpack Compose;
-- una API REST desarrollada con Spring Boot;
-- PostgreSQL 16 como persistencia principal de usuarios, sesiones, materias, tareas y retos;
-- Flyway para versionar el esquema de datos;
-- integración externa con servicios académicos de UTADEO;
-- un modelo Gemma ejecutado localmente en el dispositivo para generación de preguntas;
-- WorkManager para tareas periódicas y trabajos en segundo plano;
-- Docker Compose para levantar de forma reproducible la API y PostgreSQL.
-
-## Límite del sistema
-
-La aplicación Android no se conecta directamente a PostgreSQL. La comunicación de persistencia sigue el flujo:
+## Cómo está dividido
 
 ```text
+Estudiante
+   |
+   v
 Android
-  |
-  | HTTP/JSON + token Bearer
-  v
+   | HTTP/JSON + Bearer
+   v
 API Spring Boot
-  |
-  | JDBC
-  v
+   | JDBC
+   v
 PostgreSQL 16
+
+Android ---> UTADEO
+Android ---> Gemma local
 ```
 
-UTADEO es un sistema externo. Gemma se ejecuta localmente dentro del dispositivo Android y no pertenece al backend.
+La regla más importante de esta arquitectura es que Android no se conecta directamente a PostgreSQL. La aplicación consume la API y la API es la que consulta la base.
 
-## Funcionalidades incluidas
+## Qué sí está implementado
 
-- registro de usuarios nuevos;
-- inicio y cierre de sesión;
-- consulta y actualización de perfil;
-- creación, consulta y eliminación de materias;
-- creación, consulta, actualización de estado y eliminación de tareas;
-- sincronización de materias, participantes y tareas provenientes de UTADEO;
-- persistencia de progreso de retos diarios;
-- persistencia de preguntas de retos;
-- generación local de preguntas mediante Gemma;
-- notificaciones y sincronizaciones periódicas.
+- registro, login y logout;
+- perfil;
+- materias y participantes;
+- tareas;
+- sincronización con UTADEO;
+- progreso de retos y preguntas;
+- generación de preguntas con Gemma local;
+- WorkManager para trabajos en segundo plano;
+- migraciones Flyway;
+- CI para Android y backend.
 
-## Funcionalidades explícitamente fuera del alcance actual
+## Qué no estamos presentando como parte del sistema actual
 
-La recuperación de contraseña y la verificación de correo electrónico no se implementan en esta primera migración. La interfaz heredada puede conservar referencias visuales a estos flujos para facilitar su implementación posterior, pero no forman parte de las capacidades comprometidas para esta línea base.
+No incluimos recuperación de contraseña ni verificación de correo porque todavía no están implementadas.
 
-## Restricciones conocidas
+Tampoco dejamos un actor Administrador en el C4. En versiones anteriores apareció, pero al revisar el código no encontramos un flujo administrativo real que pudiéramos mostrar en la defensa.
 
-### Tecnológicas
+OpenRouter tiene código en el proyecto, pero el flujo de retos que pudimos seguir desde `ChallengeRepository` usa `GemmaChallengeService` y `GemmaModelManager`. Por eso no lo estamos dibujando como parte del flujo principal as-is.
 
-- El cliente principal es Android.
-- El backend utiliza Java 21 y Spring Boot 3.3.4.
-- La base de datos utilizada para esta etapa es PostgreSQL 16.
-- El esquema de datos se versiona mediante Flyway.
-- La aplicación Android consume la API mediante HTTP/JSON.
-- Las credenciales de PostgreSQL no deben estar presentes dentro de la aplicación Android.
-- Gemma debe continuar ejecutándose localmente en el dispositivo.
+## Dependencias externas
 
-### De integración
+UTADEO está fuera de nuestro control. Si cambia su formato o deja de responder, la sincronización puede fallar.
 
-- La sincronización con UTADEO depende de la disponibilidad y del comportamiento del servicio externo.
-- Las credenciales académicas del estudiante se almacenan en el dispositivo para poder realizar las sincronizaciones actuales.
+Gemma se ejecuta localmente en Android, así que también depende de los recursos del dispositivo y de que el modelo esté disponible.
 
-### De ejecución
+## Línea base que ya medimos
 
-- El entorno reproducible del backend requiere Docker para la ruta recomendada de ejecución.
-- Para ejecutar Android se requiere Android SDK 36 y un dispositivo o emulador compatible.
+La operación que usamos para la medición fue:
 
-## Hechos verificados en el código
+`GET /api/tasks`
 
-1. Existe una aplicación Android basada en Kotlin y Jetpack Compose.
-2. La aplicación contiene gestión de materias, tareas, perfil, retos, chat e integración con UTADEO.
-3. La generación de preguntas con Gemma ocurre localmente en Android.
-4. El backend Spring Boot expone una API REST y utiliza JDBC.
-5. PostgreSQL es la persistencia principal de la arquitectura migrada.
-6. Flyway crea y evoluciona el esquema relacional.
-7. La autenticación del backend utiliza sesiones mediante token Bearer y almacena solamente el hash SHA-256 del token en la base de datos.
-8. Las contraseñas de usuarios se almacenan mediante BCrypt.
+La prueba final quedó con:
 
-## Estado experimental actual
-
-La hipótesis histórica preregistrada se conserva sin modificación y planteaba observar degradación con una cuenta de 10.000 tareas distribuidas de forma desigual. Antes de ejecutar la primera medición real, el diseño experimental se ajustó y quedó documentado separadamente.
-
-El escenario finalmente medido fue:
-
-- 5.000 usuarios experimentales distintos;
+- 5.000 usuarios;
 - 5 materias por usuario;
 - 1.000 tareas por usuario;
-- 5.000.000 de tareas totales;
-- 30 usuarios virtuales concurrentes, cada uno con una cuenta distinta;
-- operación observada: `GET /api/tasks`;
-- cuatro corridas de 60 segundos, con la primera tratada como calentamiento;
-- línea base: mediana del p95 de las corridas 2, 3 y 4 = aproximadamente 90,75 ms.
+- 5.000.000 de tareas en total;
+- 30 VU;
+- 4 corridas de 60 segundos;
+- corrida 1 usada como calentamiento.
 
-Este resultado caracteriza únicamente el escenario revisado bajo las condiciones registradas. No debe presentarse como una medición literal de la semilla original de 10.000 tareas.
+La mediana del p95 de las corridas 2, 3 y 4 fue **90,7544952 ms**.
 
-## Supuestos pendientes de verificar con evidencia de ejecución
-
-- Que el entorno completo pueda levantarse en las máquinas de los tres integrantes sin ajustes particulares adicionales.
-- Que la integración UTADEO mantenga estable el formato de sus respuestas durante el semestre.
-- Que el umbral de rendimiento adoptado siga siendo adecuado al ampliar o modificar el escenario de carga.
-- Que el comportamiento observado se mantenga en hardware, red o configuraciones distintas a las registradas en la línea base.
-
-Los supuestos anteriores no se presentan como hechos hasta que exista evidencia reproducible.
-
-## Riesgos iniciales
-
-| Riesgo | Impacto | Tratamiento inicial |
-| --- | --- | --- |
-| Cambio o indisponibilidad de UTADEO | La sincronización puede fallar | Aislar la integración en un repositorio/servicio independiente |
-| Crecimiento del número de tareas | Puede aumentar la latencia de consulta | Medir una línea base con una semilla controlada |
-| Exposición de credenciales o tokens | Compromiso de cuentas | Variables de entorno, BCrypt y hash de tokens |
-| Dependencia de recursos del dispositivo para Gemma | Generación lenta o no disponible | Mantener descarga/ejecución separada de la persistencia del backend |
-| Divergencia entre esquema y código | Fallos de despliegue | Migraciones Flyway versionadas |
-| Cambios que rompan Android o backend | Regresiones | Pruebas automatizadas y CI en GitHub Actions |
+La primera hipótesis hablaba de un usuario con 10.000 tareas. Esa hipótesis se conserva porque fue registrada antes, pero no fue exactamente el escenario que terminamos midiendo.

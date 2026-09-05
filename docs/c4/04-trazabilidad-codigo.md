@@ -1,24 +1,27 @@
-﻿# Trazabilidad C4 hacia el cÃ³digo
+# Trazabilidad C4 hacia el código
 
-| Elemento C4 | ImplementaciÃ³n rastreable |
-| --- | --- |
-| AplicaciÃ³n Android | `app/src/main/` |
-| Cliente HTTP Android | `app/src/main/java/.../data/remote/ApiClient.kt` y `ApiService.kt` |
-| SesiÃ³n Android | `SessionStore.kt` |
-| API Spring Boot | `backend/src/main/java/` |
-| Seguridad | `SecurityConfig.java`, `TokenAuthenticationFilter.java`, `AuthService.java` |
-| AutenticaciÃ³n | controlador de autenticaciÃ³n y `AuthService.java` |
-| Perfil | controlador/repository de perfil del backend |
-| Materias | controlador/repository de materias del backend |
-| Tareas | controlador/repository de tareas del backend |
-| Retos | controlador/repository de retos del backend |
-| PostgreSQL | `docker-compose.yml` y esquema Flyway |
-| Esquema relacional | `backend/src/main/resources/db/migration/V1__esquema_relacional.sql` |
-| MigraciÃ³n UTADEO | `V2__sincronizacion_utadeo.sql` |
-| IA local | clases Android relacionadas con Gemma/LiteRT-LM |
-| Experimento de rendimiento | `experimentos/consulta-tareas/` |
-| CI | `.github/workflows/ci.yml` |
+La tabla completa, el registro de correcciones y el Walking Skeleton se encuentran en:
 
-## Regla arquitectÃ³nica principal
+`dossier-arquitectura/docs/07-c4-componentes.md`
 
-La persistencia sigue `Android -> API REST -> PostgreSQL`. El cliente Android no contiene credenciales ni conexiÃ³n JDBC hacia PostgreSQL.
+## Resumen
+
+| Elemento C4 | Evidencia principal | Estado |
+| --- | --- | --- |
+| Aplicación Android | `app/src/main/` | ✅ Verificado |
+| API Spring Boot | `backend/src/main/java/com/example/aprendeaprender/api/` | ✅ Verificado |
+| PostgreSQL 16 | `docker-compose.yml`, `application.yml` | ✅ Verificado |
+| Seguridad | `SecurityConfig.java`, `TokenAuthenticationFilter.java` | ✅ Verificado |
+| AuthService | `AuthService.java` | ✅ Verificado |
+| TaskController | `TaskController.java` | ✅ Verificado |
+| SubjectController | `SubjectController.java` | ✅ Verificado |
+| ProfileController | `ProfileController.java` | ✅ Verificado |
+| ChallengeController | `ChallengeController.java` | ✅ Verificado |
+| Backend Repository de tareas | no existe | 🗑️ Eliminado |
+| JDBC / Flyway como una sola capa | responsabilidades distintas | ✏️ Corregido |
+
+## Walking Skeleton
+
+`TaskRepository.getMyTasks() → ApiService.getTasks() → ApiClient → TokenAuthenticationFilter → AuthService → TaskController.list() → JdbcClient → PostgreSQL`
+
+La representación gráfica y la evidencia de cada salto están documentadas en `dossier-arquitectura/docs/07-c4-componentes.md`.

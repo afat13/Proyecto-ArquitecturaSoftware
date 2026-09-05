@@ -1,80 +1,55 @@
-# Stakeholders y drivers arquitectónicos
+# 02 — Stakeholders, drivers y riesgos
 
 ## Stakeholders
 
-| Stakeholder | Interés en el sistema | Expectativas o preocupaciones |
-| --- | --- | --- |
-| Estudiante usuario | Organizar su trabajo académico y estudiar | Información disponible, tiempos de respuesta razonables, sesiones seguras y sincronización confiable |
-| Equipo de desarrollo | Construir, probar y evolucionar el sistema | Código mantenible, arquitectura comprensible, entorno reproducible y errores detectables antes de integrar cambios |
-| Docente evaluador | Evaluar decisiones y evidencia arquitectónica | Trazabilidad entre código, hipótesis, mediciones, Git, C4 y afirmaciones del equipo |
-| UTADEO / sistema académico externo | Fuente externa de información | Es una dependencia fuera del control del equipo; cambios o fallos afectan la sincronización |
-| Operador del backend | Ejecutar API y PostgreSQL | Configuración mediante variables, healthchecks, persistencia y diagnóstico sencillo |
+| Stakeholder | Qué le importa |
+| --- | --- |
+| Estudiante | que sus tareas y materias estén disponibles y no se mezclen con las de otros usuarios |
+| Equipo de desarrollo | poder cambiar backend o persistencia sin romper Android |
+| Docente | poder comprobar lo que afirmamos mirando código y evidencia |
+| UTADEO | es la fuente externa de parte de la información académica |
+| Operación del backend | que API y PostgreSQL se puedan levantar y revisar fácilmente |
 
-## Drivers arquitectónicos preliminares
+## Restricciones que ya tenemos
 
-### 1. Persistencia relacional y trazable
+- Android ya existe y está hecho con Kotlin y Compose.
+- El backend usa Spring Boot 3.3.4 y Java 21.
+- La persistencia de este corte es PostgreSQL 16.
+- Android no debe tener credenciales de PostgreSQL.
+- Gemma sigue funcionando localmente.
+- La integración con UTADEO depende de un sistema externo.
+- El escenario actual se ejecuta en infraestructura local con Docker.
 
-Materias, tareas, usuarios, sesiones y retos tienen relaciones explícitas y requieren integridad referencial. Esto conduce a PostgreSQL, claves foráneas, restricciones e índices administrados mediante migraciones Flyway.
+## Drivers principales
 
-### 2. Separación cliente–base de datos
+### Integridad de los datos
 
-La aplicación Android no debe conocer credenciales de PostgreSQL ni ejecutar SQL directamente. Por ello la arquitectura introduce una API REST como límite entre cliente y persistencia.
+Cada usuario debe consultar sus propios datos. En tareas esto se ve en el filtro por `user_id` que hace el backend.
 
-### 3. Seguridad de autenticación
+### Seguridad de autenticación
 
-Las contraseñas no se almacenan en texto plano. Se utiliza BCrypt. Las sesiones usan tokens aleatorios enviados como Bearer; la base de datos conserva su hash SHA-256 y una fecha de expiración en lugar del token original.
+Las contraseñas se guardan con BCrypt. Para las sesiones se genera un token Bearer y en PostgreSQL se conserva el hash SHA-256 del token.
 
-La recuperación de contraseña y la verificación de correo se reconocen como necesidades futuras, pero no forman parte del alcance implementado para esta primera versión de autenticación.
+### Rendimiento
 
-### 4. Rendimiento ante crecimiento de datos
+Elegimos `GET /api/tasks` porque es una operación fácil de seguir de extremo a extremo y porque el volumen de tareas puede crecer.
 
-`GET /api/tasks` se seleccionó como operación de referencia para obtener una línea base reproducible bajo carga concurrente. La hipótesis preregistrada originalmente planteó una cuenta con 10.000 tareas; antes de medir, el diseño experimental se revisó y la medición real utilizó 5.000 usuarios distintos con 1.000 tareas por usuario, para 5.000.000 de tareas totales.
+### Modificabilidad
 
-La carga medida utilizó 30 usuarios virtuales concurrentes con una cuenta distinta por VU y cuatro corridas de 60 segundos. La corrida 1 se trató como calentamiento y la línea base resultante fue la mediana del p95 de las corridas 2–4: aproximadamente 90,75 ms.
+La separación Android → API → PostgreSQL nos permite cambiar la persistencia sin meter SQL o credenciales dentro de Android.
 
-Este resultado no identifica por sí solo una causa de rendimiento y no debe presentarse como prueba literal de la semilla original de 10.000 tareas.
+### Reproducibilidad
 
-### 5. Reproducibilidad
+Docker, Flyway, k6, los scripts y los resultados versionados hacen posible repetir el escenario.
 
-El equipo debe poder reconstruir el entorno, ejecutar pruebas y repetir el experimento. Docker Compose, Flyway, una semilla determinista, scripts de carga y GitHub Actions soportan este driver.
+## Riesgos que sí estamos considerando
 
-### 6. Modificabilidad
+| Riesgo | Qué hicimos |
+| --- | --- |
+| una consulta con muchas tareas puede crecer demasiado | medimos primero antes de proponer paginación |
+| una consulta puede devolver datos de otro usuario si se pierde el filtro | mantenemos autenticación y `WHERE ... user_id` |
+| UTADEO puede cambiar | la integración está separada en su propio servicio/repositorio |
+| Gemma puede no estar disponible en el dispositivo | el modelo se gestiona localmente |
+| alguien puede proponer infraestructura innecesaria | no agregamos cosas como Kubernetes sin una necesidad medida |
 
-La persistencia anterior estaba acoplada a servicios Firebase dentro del cliente Android. La nueva separación mediante `ApiService`, repositorios Android, controladores de backend y esquema versionado busca que cambios de almacenamiento no obliguen a propagar detalles de PostgreSQL hasta la interfaz.
-
-### 7. Continuidad de capacidades locales
-
-Gemma continúa ejecutándose localmente. La migración de persistencia no debe convertir la generación de preguntas en una dependencia del backend ni eliminar el uso de WorkManager.
-
-### 8. Interoperabilidad con UTADEO
-
-La aplicación necesita transformar información proveniente de UTADEO a sus entidades internas. La sincronización externa se mantiene en Android, mientras la persistencia del resultado pasa por la API y PostgreSQL.
-
-## Priorización preliminar de drivers
-
-1. Correctitud e integridad de datos.
-2. Seguridad de autenticación y separación de credenciales.
-3. Reproducibilidad de ejecución y pruebas.
-4. Rendimiento de operaciones de consulta bajo crecimiento de datos.
-5. Modificabilidad de persistencia e integraciones.
-6. Interoperabilidad con UTADEO.
-7. Continuidad del procesamiento local de IA.
-
-Esta priorización es preliminar. La matriz formal de atributos de calidad y su justificación se mantiene en un documento separado para permitir que tenga autoría y trazabilidad propias.
-
-## Tensiones arquitectónicas observables
-
-- Una autenticación más robusta agrega complejidad operativa frente a una solución mínima de sesión.
-- Obtener todos los datos de una sola vez puede simplificar el cliente, pero puede perjudicar rendimiento cuando el volumen aumenta.
-- Mantener Gemma local mejora independencia frente a un servicio de IA remoto, pero depende de memoria, almacenamiento y capacidad del dispositivo.
-- Sincronizar frecuentemente con UTADEO mejora actualidad de datos, pero aumenta uso de red y dependencia de un sistema externo.
-- Agregar índices puede mejorar lecturas, pero tiene costo en escritura y almacenamiento; no se adoptarán optimizaciones únicamente por intuición antes de medir.
-
-## Preguntas abiertas
-
-- ¿Cómo cambia la línea base si aumenta el número de tareas por usuario o la concurrencia?
-- ¿El escenario requiere paginación u otra estrategia si futuros experimentos muestran degradación significativa?
-- ¿Qué nivel de disponibilidad real se requerirá cuando el backend deje de ejecutarse solo en un entorno académico/local?
-- ¿Qué mecanismo se utilizará posteriormente para verificación de correo y recuperación de contraseña?
-
-Estas preguntas se mantienen abiertas para evitar convertir supuestos en decisiones prematuras.
+No estamos diciendo que PostgreSQL “sea lento” o “sea rápido” por intuición. El experimento mide una operación concreta; cualquier causa tendría que medirse aparte.
