@@ -1,8 +1,13 @@
-# Modelo C4 — Aprende a Aprender
+# C4 as-is
 
-- `01-contexto.puml`: Nivel 1.
-- `02-contenedores.puml`: Nivel 2.
-- `03-componentes.puml`: Nivel 3 del backend.
-- `04-trazabilidad-codigo.md`: elemento → archivo → símbolo → relación.
+Acá dejamos las fuentes PlantUML de las tres vistas:
 
-Regla: una caja o flecha sin evidencia se corrige o elimina.
+- `01-contexto.puml`
+- `02-contenedores.puml`
+- `03-componentes.puml`
+
+La versión que usamos para la entrega del Módulo 3, con diagramas que renderizan directamente en GitHub, tabla de trazado, correcciones y Walking Skeleton, está en:
+
+`dossier-arquitectura/docs/`
+
+La regla para estas vistas es sencilla: si no podemos abrir la evidencia en el repositorio, no dejamos la caja o la flecha en el C4.
