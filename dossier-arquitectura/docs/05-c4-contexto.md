@@ -25,6 +25,5 @@ flowchart LR
 
 ## Correcciones registradas
 
-**Administrador — eliminado.** Aparecía en una versión anterior del contexto, pero no se encontró un caso de uso administrativo implementado y trazable.
 
 **Gemma — corregido.** Se representa como capacidad local del cliente Android y no como un servicio remoto del backend.
