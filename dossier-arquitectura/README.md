@@ -1,8 +1,6 @@
 # Dossier de arquitectura — Módulo 3
 
-En esta carpeta dejamos las vistas C4 que vamos a usar para semanas 5 y 6.
-
-No estamos usando el C4 para dibujar una arquitectura ideal. Todo lo que aparece acá tiene que poder rastrearse al código que ya existe.
+Este directorio contiene las vistas C4 auditadas del sistema, su trazabilidad hacia código y el Walking Skeleton de una operación real.
 
 Documentos:
 
@@ -10,4 +8,6 @@ Documentos:
 - `docs/06-c4-contenedores.md`
 - `docs/07-c4-componentes.md`
 
-El Walking Skeleton principal sigue `GET /api/tasks` porque es una operación real que ya usamos en el experimento de rendimiento y nos permite cruzar Android, seguridad, backend y PostgreSQL.
+El modelo representa la arquitectura **as-is**. Cada elemento y relación incluida debe contar con una evidencia verificable en el repositorio.
+
+El Walking Skeleton seleccionado corresponde a `GET /api/tasks`, operación que atraviesa Android, autenticación, backend y PostgreSQL y que además cuenta con una línea base de rendimiento registrada.

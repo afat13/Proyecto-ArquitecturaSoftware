@@ -1,6 +1,6 @@
 # 05 — C4 Nivel 1: contexto
 
-En este nivel no mostramos clases ni detalles internos. Solo quién usa el sistema y con qué sistemas externos se relaciona.
+El diagrama de contexto muestra el actor principal, el sistema estudiado y los sistemas externos o locales relevantes con los que se relaciona.
 
 ```mermaid
 flowchart LR
@@ -14,17 +14,17 @@ flowchart LR
     S -->|genera preguntas de estudio| G
 ```
 
-## Qué representa cada elemento
+## Elementos representados
 
-| Elemento | Qué representa | Evidencia |
+| Elemento | Responsabilidad | Evidencia |
 | --- | --- | --- |
 | Estudiante | usuario principal de la aplicación | pantallas y navegación Android |
-| Aprende a Aprender | sistema que estamos estudiando | `app/` + `backend/` |
+| Aprende a Aprender | sistema estudiado | `app/` + `backend/` |
 | UTADEO | sistema académico externo | `UtadeoService.kt` y `UtadeoRepository.kt` |
-| Gemma local | modelo usado para generar preguntas en el dispositivo | `GemmaModelManager.kt` y `GemmaChallengeService.kt` |
+| Gemma local | generación de preguntas en el dispositivo | `GemmaModelManager.kt` y `GemmaChallengeService.kt` |
 
-## Corrección hecha al contexto
+## Correcciones registradas
 
-En una versión anterior aparecía un **Administrador**. Lo quitamos porque no encontramos un caso de uso administrativo implementado que pudiéramos demostrar en el repositorio.
+**Administrador — eliminado.** Aparecía en una versión anterior del contexto, pero no se encontró un caso de uso administrativo implementado y trazable.
 
-También dejamos Gemma como parte local del sistema Android, no como un servicio remoto del backend.
+**Gemma — corregido.** Se representa como capacidad local del cliente Android y no como un servicio remoto del backend.

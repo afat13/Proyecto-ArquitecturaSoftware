@@ -1,12 +1,10 @@
 # Trazabilidad C4 hacia el código
 
-La tabla completa, el registro de correcciones y el Walking Skeleton están en:
+La tabla completa, el registro de correcciones y el Walking Skeleton se encuentran en:
 
 `dossier-arquitectura/docs/07-c4-componentes.md`
 
-Este archivo se mantiene como acceso rápido desde las fuentes PlantUML.
-
-## Resumen de trazabilidad
+## Resumen
 
 | Elemento C4 | Evidencia principal | Estado |
 | --- | --- | --- |
@@ -22,8 +20,8 @@ Este archivo se mantiene como acceso rápido desde las fuentes PlantUML.
 | Backend Repository de tareas | no existe | 🗑️ Eliminado |
 | JDBC / Flyway como una sola capa | responsabilidades distintas | ✏️ Corregido |
 
-## Walking Skeleton usado
+## Walking Skeleton
 
 `TaskRepository.getMyTasks() → ApiService.getTasks() → ApiClient → TokenAuthenticationFilter → AuthService → TaskController.list() → JdbcClient → PostgreSQL`
 
-La representación gráfica y la evidencia de cada salto están en `dossier-arquitectura/docs/07-c4-componentes.md`.
+La representación gráfica y la evidencia de cada salto están documentadas en `dossier-arquitectura/docs/07-c4-componentes.md`.

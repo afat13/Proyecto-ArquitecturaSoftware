@@ -1,6 +1,6 @@
 # 06 — C4 Nivel 2: contenedores
 
-Acá mostramos las partes ejecutables o de almacenamiento que sí existen en el proyecto.
+El nivel de contenedores representa las unidades ejecutables y de almacenamiento verificadas en el proyecto.
 
 ```mermaid
 flowchart LR
@@ -19,9 +19,9 @@ flowchart LR
     A -->|persiste materias y tareas sincronizadas| API
 ```
 
-## Contenedores que sí podemos mostrar en código
+## Evidencia por contenedor
 
-| Contenedor | Archivo o módulo que lo demuestra |
+| Contenedor | Archivo o módulo |
 | --- | --- |
 | Android | `app/src/main/` |
 | API REST | `backend/src/main/java/com/example/aprendeaprender/api/` |
@@ -29,7 +29,7 @@ flowchart LR
 | Gemma local | `app/src/main/java/com/example/aprendeaprender/data/ai/` |
 | UTADEO | `UtadeoService.kt` |
 
-## Relación principal de persistencia
+## Frontera de persistencia
 
 ```mermaid
 flowchart LR
@@ -37,6 +37,6 @@ flowchart LR
     API -->|JdbcClient / JDBC| PostgreSQL[(PostgreSQL)]
 ```
 
-Android no conoce la contraseña de PostgreSQL ni ejecuta SQL. Esa frontera es una de las relaciones que sí tenemos que poder defender con código.
+Android no contiene credenciales de PostgreSQL ni ejecuta SQL. La persistencia se realiza exclusivamente a través de la API.
 
-Flyway no aparece como un contenedor aparte porque no recibe peticiones de la aplicación. Se usa para crear y evolucionar el esquema cuando levanta el backend.
+Flyway no se modela como contenedor independiente porque no recibe peticiones de negocio; se utiliza para crear y evolucionar el esquema al iniciar el backend.
