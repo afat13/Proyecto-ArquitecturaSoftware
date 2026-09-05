@@ -1,10 +1,8 @@
-﻿# Diagramas C4 as-is
+# Modelo C4 — Aprende a Aprender
 
-Estos diagramas describen la arquitectura implementada en el Corte 1. Se usa PlantUML sin dependencias externas para mantener los archivos reproducibles.
+- `01-contexto.puml`: Nivel 1.
+- `02-contenedores.puml`: Nivel 2.
+- `03-componentes.puml`: Nivel 3 del backend.
+- `04-trazabilidad-codigo.md`: elemento → archivo → símbolo → relación.
 
-- `01-contexto.puml`: personas, sistema y dependencias externas.
-- `02-contenedores.puml`: Android, API Spring Boot, PostgreSQL, Gemma y UTADEO.
-- `03-componentes.puml`: principales componentes del backend.
-- `04-trazabilidad-codigo.md`: relaciÃ³n entre cada elemento y archivos concretos del repositorio.
-
-Los diagramas representan el estado **as-is** y no una arquitectura futura propuesta.
+Regla: una caja o flecha sin evidencia se corrige o elimina.
