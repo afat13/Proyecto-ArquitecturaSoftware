@@ -1,33 +1,39 @@
-﻿# Atributos de calidad priorizados
+# 03 — Atributos de calidad
 
-## Objetivo
+## Matriz priorizada
 
-Registrar los atributos de calidad que condicionan las decisiones arquitectÃ³nicas del sistema Aprende a Aprender durante el Corte 1.
+| Orden | Atributo | Impacto | Urgencia | Puntaje | Justificación |
+| ---: | --- | ---: | ---: | ---: | --- |
+| 1 | Seguridad / aislamiento | 5 | 5 | 25 | cuentas, sesiones y datos académicos |
+| 2 | Rendimiento | 5 | 4 | 20 | `GET /api/tasks` devuelve colecciones completas |
+| 3 | Modificabilidad | 4 | 4 | 16 | separar Android, API y persistencia |
+| 4 | Reproducibilidad | 4 | 4 | 16 | auditoría y repetición del experimento |
+| 5 | Disponibilidad | 3 | 3 | 9 | persistencia depende de API + DB |
+| 6 | Interoperabilidad | 3 | 3 | 9 | UTADEO es externo |
 
-## Matriz de priorizaciÃ³n
+## TASK-PERF-01 — Consulta concurrente
 
-| Atributo | Prioridad | Motivo | Evidencia o mecanismo actual |
-| --- | --- | --- | --- |
-| Rendimiento | Alta | La consulta de tareas es una operaciÃ³n frecuente y debe responder de forma predecible bajo concurrencia. | Experimento reproducible sobre `GET /api/tasks`, k6 y PostgreSQL. |
-| Seguridad | Alta | El sistema maneja cuentas, contraseÃ±as, sesiones y datos acadÃ©micos. | BCrypt, token Bearer aleatorio, hash SHA-256 del token almacenado y Spring Security. |
-| Modificabilidad | Media-Alta | Android, API y persistencia deben poder evolucionar sin acoplar la UI directamente a PostgreSQL. | SeparaciÃ³n Android -> API REST -> PostgreSQL, Retrofit y repositorios. |
-| Disponibilidad | Media | La aplicaciÃ³n depende de la API para persistencia remota; una caÃ­da impide sincronizar y consultar datos remotos. | Healthcheck de API y PostgreSQL, Docker Compose y CI. |
-| Observabilidad | Media | Para reproducir y explicar resultados deben conservarse contexto, logs y mÃ©tricas. | Actuator, logs de k6, JSON crudos y `contexto.json`. |
+- Fuente: estudiantes autenticados representados por k6.
+- Estímulo: 30 VU ejecutan `GET /api/tasks`.
+- Artefacto: seguridad, `TaskController`, `JdbcClient`, PostgreSQL.
+- Entorno: 5.000 usuarios, 1.000 tareas por usuario, 5.000.000 totales.
+- Respuesta: HTTP 200 y exactamente 1.000 tareas de la identidad autenticada.
+- Medida: cuatro corridas de 60 s; corrida 1 calentamiento; línea base = mediana p95 de corridas 2–4.
+- Resultado: **90,7544952 ms**.
 
-## Tensiones arquitectÃ³nicas
+## TASK-SEC-01 — Aislamiento
 
-### Rendimiento vs. simplicidad
+La respuesta debe corresponder al usuario autenticado. `TaskController.list()` obtiene el identificador desde `Authentication` y filtra SQL mediante `WHERE t.user_id = :userId`.
 
-Devolver el listado completo de tareas simplifica el cliente, pero respuestas grandes pueden incrementar consulta, serializaciÃ³n, memoria y transferencia. La lÃ­nea base permite observar el comportamiento antes de proponer optimizaciones.
+## AUTH-SEC-01 — Protección de credenciales
 
-### Seguridad vs. comodidad
+`AuthService` usa BCrypt para contraseñas, genera token aleatorio de sesión y persiste solo el hash SHA-256 del token con expiración.
 
-Exigir autenticaciÃ³n para los recursos agrega trabajo a cada solicitud, pero evita exponer datos de otros usuarios. La separaciÃ³n por `user_id` y el token Bearer forman parte del contrato de seguridad.
+## Mapa atributo–decisión
 
-### Modificabilidad vs. nÃºmero de componentes
-
-Separar Android, API y PostgreSQL agrega despliegue y configuraciÃ³n, pero evita credenciales de base de datos en el cliente y permite modificar persistencia o reglas del backend sin acoplarlas a la UI.
-
-## Atributo principal del escenario
-
-Para el escenario cuantitativo del Corte 1 se prioriza **rendimiento**, observado mediante el p95 del tiempo HTTP de `GET /api/tasks` bajo carga concurrente.
+| Atributo | Decisión | Evidencia |
+| --- | --- | --- |
+| Seguridad | Spring Security + Bearer + BCrypt | `SecurityConfig.java`, `TokenAuthenticationFilter.java`, `AuthService.java` |
+| Rendimiento | medir antes de optimizar | `experimentos/consulta-tareas/` |
+| Modificabilidad | Android → API → PostgreSQL | `ApiClient.kt`, `ApiService.kt`, backend |
+| Reproducibilidad | Docker, Flyway, k6 | `docker-compose.yml`, migraciones, experimento |
