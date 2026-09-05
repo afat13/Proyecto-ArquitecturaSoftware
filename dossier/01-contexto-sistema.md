@@ -1,67 +1,74 @@
 # 01 — Contexto del sistema
 
-Estado: **sistema existente, migrado a API REST + PostgreSQL y con línea base experimental registrada**.
+## Qué es Aprende a Aprender
 
-## Sistema base
+Aprende a Aprender es una aplicación Android para organizar materias y tareas y reforzar el estudio con retos. El proyecto ya existía antes de esta materia y en este corte migramos la persistencia principal a una API Spring Boot con PostgreSQL.
 
-**Aprende a Aprender** es una aplicación Android para organización académica y refuerzo del estudio. Permite registro, sesión, perfil, materias, tareas, sincronización con UTADEO y retos de estudio. La generación principal de preguntas del flujo actual utiliza Gemma local en Android.
+El estudiante usa la aplicación Android. Desde ahí puede iniciar sesión, manejar materias y tareas, sincronizar información de UTADEO y hacer retos.
 
-## Actores y sistemas externos
-
-| Actor / sistema | Objetivo | Relación |
-| --- | --- | --- |
-| Estudiante | Organizar materias, tareas y estudio | Usa Android |
-| UTADEO | Proveer información académica | Android consulta y transforma información externa |
-| Gemma local | Generar preguntas | Android ejecuta inferencia local |
-| Equipo de desarrollo | Mantener y medir | Pruebas, CI, migraciones y experimento |
-| Docente / auditor | Verificar decisiones | C4, código, dossier y resultados |
-
-No se incluye Administrador en el C4 as-is porque no se encontró un flujo implementado verificable equivalente al descrito en documentos tempranos.
-
-## Límite del sistema
+## Cómo está dividido
 
 ```text
 Estudiante
-    |
-    v
-Android (Kotlin + Jetpack Compose)
-    | HTTP/JSON + Bearer
-    v
-API REST (Spring Boot 3.3.4 / Java 21)
-    | JDBC mediante Spring JdbcClient
-    v
+   |
+   v
+Android
+   | HTTP/JSON + Bearer
+   v
+API Spring Boot
+   | JDBC
+   v
 PostgreSQL 16
 
 Android ---> UTADEO
-Android ---> Gemma local / LiteRT-LM
+Android ---> Gemma local
 ```
 
-Android no contiene una conexión JDBC ni credenciales de PostgreSQL.
+La regla más importante de esta arquitectura es que Android no se conecta directamente a PostgreSQL. La aplicación consume la API y la API es la que consulta la base.
 
-## Capacidades verificadas
+## Qué sí está implementado
 
 - registro, login y logout;
 - perfil;
-- materias, participantes y tareas;
-- sincronización UTADEO;
-- progreso y preguntas de retos;
-- generación local con Gemma;
-- WorkManager y notificaciones;
-- Flyway;
-- CI para backend y Android.
+- materias y participantes;
+- tareas;
+- sincronización con UTADEO;
+- progreso de retos y preguntas;
+- generación de preguntas con Gemma local;
+- WorkManager para trabajos en segundo plano;
+- migraciones Flyway;
+- CI para Android y backend.
 
-## Fuera del alcance
+## Qué no estamos presentando como parte del sistema actual
 
-- recuperación de contraseña;
-- verificación de correo;
-- alta disponibilidad o multi-región;
-- conexión directa Android → PostgreSQL;
-- presentar OpenRouter como flujo activo sin una llamada verificada.
+No incluimos recuperación de contraseña ni verificación de correo porque todavía no están implementadas.
 
-## Línea base experimental
+Tampoco dejamos un actor Administrador en el C4. En versiones anteriores apareció, pero al revisar el código no encontramos un flujo administrativo real que pudiéramos mostrar en la defensa.
 
-Operación: `GET /api/tasks`.
+OpenRouter tiene código en el proyecto, pero el flujo de retos que pudimos seguir desde `ChallengeRepository` usa `GemmaChallengeService` y `GemmaModelManager`. Por eso no lo estamos dibujando como parte del flujo principal as-is.
 
-Diseño medido: 5.000 usuarios, 5 materias por usuario, 1.000 tareas por usuario, 5.000.000 de tareas, 30 VU con identidades distintas y 4 corridas de 60 s. La corrida 1 fue calentamiento. La mediana del p95 de corridas 2–4 fue **90,7544952 ms**.
+## Dependencias externas
 
-La hipótesis original de un usuario con 10.000 tareas se conserva por separado y no debe presentarse como si fuera la semilla realmente medida.
+UTADEO está fuera de nuestro control. Si cambia su formato o deja de responder, la sincronización puede fallar.
+
+Gemma se ejecuta localmente en Android, así que también depende de los recursos del dispositivo y de que el modelo esté disponible.
+
+## Línea base que ya medimos
+
+La operación que usamos para la medición fue:
+
+`GET /api/tasks`
+
+La prueba final quedó con:
+
+- 5.000 usuarios;
+- 5 materias por usuario;
+- 1.000 tareas por usuario;
+- 5.000.000 de tareas en total;
+- 30 VU;
+- 4 corridas de 60 segundos;
+- corrida 1 usada como calentamiento.
+
+La mediana del p95 de las corridas 2, 3 y 4 fue **90,7544952 ms**.
+
+La primera hipótesis hablaba de un usuario con 10.000 tareas. Esa hipótesis se conserva porque fue registrada antes, pero no fue exactamente el escenario que terminamos midiendo.

@@ -1,16 +1,18 @@
 # Dossier de arquitectura — Aprende a Aprender
 
-Este directorio organiza la evidencia arquitectónica del proyecto siguiendo la lógica de auditoría del repositorio de referencia, pero adaptada al sistema real de **Aprende a Aprender**.
+Este dossier deja reunido lo que realmente tenemos en el proyecto y la evidencia para defenderlo.
 
-| Entrega | Artefacto |
+La idea que estamos siguiendo es simple: si algo aparece en el C4, tenemos que poder abrir el archivo en el repositorio y mostrar dónde está. Si no se puede demostrar, se corrige o se quita.
+
+| Documento | Qué contiene |
 | --- | --- |
-| Contexto y sistema base | `01-contexto-sistema.md` |
-| Stakeholders, restricciones, drivers y riesgos | `02-stakeholders-drivers.md` |
-| Atributos y escenarios verificables | `03-atributos-calidad.md` |
-| Escenario principal y línea base | `04-escenarios-calidad.md` |
-| Verificación del corte | `05-checklist-semanas-1-4.md` |
-| Guion de defensa | `06-guion-exposicion-3-personas.md` |
-| Modelo C4 y trazabilidad | `../docs/c4/` |
-| Experimento | `../experimentos/consulta-tareas/` |
+| `01-contexto-sistema.md` | contexto y límites del sistema |
+| `02-stakeholders-drivers.md` | actores, restricciones, drivers y riesgos |
+| `03-atributos-calidad.md` | atributos que estamos priorizando |
+| `04-escenarios-calidad.md` | escenario de rendimiento y resultado medido |
+| `05-checklist-semanas-1-4.md` | puntos que deben estar listos para la entrega |
+| `06-guion-exposicion-3-personas.md` | reparto para la defensa |
+| `07-registro-critico-ia-riesgos.md` | qué sugerencias de IA aceptamos, corregimos o descartamos |
+| `08-registro-ia-escenarios-calidad.md` | cómo aterrizamos escenarios que inicialmente estaban muy generales |
 
-Regla: no se presenta como hecho arquitectónico nada que no pueda rastrearse a código, configuración, pruebas o resultados versionados.
+Las vistas C4 del módulo 3 quedaron organizadas también en `dossier-arquitectura/docs/`. Los archivos PlantUML se mantienen en `docs/c4/` como fuente de los diagramas.

@@ -2,43 +2,54 @@
 
 ## Stakeholders
 
-| Stakeholder | Interés | Influencia | Evidencia / respuesta |
-| --- | --- | --- | --- |
-| Estudiante | consultar y organizar sus datos | Alta | autenticación y filtros por usuario |
-| Equipo de desarrollo | evolucionar sin romper | Alta | API, Flyway y CI |
-| Docente / auditor | trazabilidad | Alta | dossier, C4, tabla y resultados |
-| UTADEO | fuente externa | Media | `UtadeoService.kt` |
-| Operación futura | ejecución reproducible | Media | Docker y healthchecks |
+| Stakeholder | Qué le importa |
+| --- | --- |
+| Estudiante | que sus tareas y materias estén disponibles y no se mezclen con las de otros usuarios |
+| Equipo de desarrollo | poder cambiar backend o persistencia sin romper Android |
+| Docente | poder comprobar lo que afirmamos mirando código y evidencia |
+| UTADEO | es la fuente externa de parte de la información académica |
+| Operación del backend | que API y PostgreSQL se puedan levantar y revisar fácilmente |
 
-## Restricciones
+## Restricciones que ya tenemos
 
-| Tipo | Restricción | Consecuencia |
-| --- | --- | --- |
-| Técnica | Android/Kotlin existente | Retrofit y repositorios del cliente |
-| Técnica | PostgreSQL 16 | JDBC, SQL y Flyway |
-| Técnica | Gemma local | IA principal fuera del backend |
-| Seguridad | no exponer credenciales DB | frontera API REST |
-| Metodológica | hipótesis ya versionada | no reescribirla tras medir |
+- Android ya existe y está hecho con Kotlin y Compose.
+- El backend usa Spring Boot 3.3.4 y Java 21.
+- La persistencia de este corte es PostgreSQL 16.
+- Android no debe tener credenciales de PostgreSQL.
+- Gemma sigue funcionando localmente.
+- La integración con UTADEO depende de un sistema externo.
+- El escenario actual se ejecuta en infraestructura local con Docker.
 
-## Drivers priorizados
+## Drivers principales
 
-| Prioridad | Driver | Decisión asociada |
-| ---: | --- | --- |
-| 1 | Integridad y aislamiento de datos | autenticación + SQL por `user_id` |
-| 2 | Seguridad de autenticación | BCrypt + Bearer + hash SHA-256 |
-| 3 | Rendimiento de consulta de tareas | medir `GET /api/tasks` |
-| 4 | Modificabilidad | Android → API → PostgreSQL |
-| 5 | Reproducibilidad | Docker, Flyway, k6, scripts y CI |
-| 6 | Interoperabilidad | encapsular UTADEO |
-| 7 | Continuidad de IA local | Gemma local |
+### Integridad de los datos
 
-## Riesgos
+Cada usuario debe consultar sus propios datos. En tareas esto se ve en el filtro por `user_id` que hace el backend.
 
-| ID | Riesgo | Juicio | Acción |
-| --- | --- | --- | --- |
-| R-01 | colecciones grandes aumentan latencia | Válido | medir antes de optimizar |
-| R-02 | mezcla de datos entre usuarios | Válido | conservar filtro por `user_id` |
-| R-03 | “PostgreSQL será lento” | Genérico | reformular con operación/carga/p95 |
-| R-04 | “se necesita Kubernetes” | Irrelevante | no introducirlo en este corte |
-| R-05 | “Android usa PostgreSQL directo” | Falso | demostrar Retrofit → API → JDBC |
-| R-06 | cambios de UTADEO | Válido | mantener integración aislada |
+### Seguridad de autenticación
+
+Las contraseñas se guardan con BCrypt. Para las sesiones se genera un token Bearer y en PostgreSQL se conserva el hash SHA-256 del token.
+
+### Rendimiento
+
+Elegimos `GET /api/tasks` porque es una operación fácil de seguir de extremo a extremo y porque el volumen de tareas puede crecer.
+
+### Modificabilidad
+
+La separación Android → API → PostgreSQL nos permite cambiar la persistencia sin meter SQL o credenciales dentro de Android.
+
+### Reproducibilidad
+
+Docker, Flyway, k6, los scripts y los resultados versionados hacen posible repetir el escenario.
+
+## Riesgos que sí estamos considerando
+
+| Riesgo | Qué hicimos |
+| --- | --- |
+| una consulta con muchas tareas puede crecer demasiado | medimos primero antes de proponer paginación |
+| una consulta puede devolver datos de otro usuario si se pierde el filtro | mantenemos autenticación y `WHERE ... user_id` |
+| UTADEO puede cambiar | la integración está separada en su propio servicio/repositorio |
+| Gemma puede no estar disponible en el dispositivo | el modelo se gestiona localmente |
+| alguien puede proponer infraestructura innecesaria | no agregamos cosas como Kubernetes sin una necesidad medida |
+
+No estamos diciendo que PostgreSQL “sea lento” o “sea rápido” por intuición. El experimento mide una operación concreta; cualquier causa tendría que medirse aparte.

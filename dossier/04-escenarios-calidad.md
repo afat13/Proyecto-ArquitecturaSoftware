@@ -1,30 +1,57 @@
-# 04 — Escenario principal y línea base
+# 04 — Escenario de calidad y línea base
 
-## Hipótesis preregistrada
+## Hipótesis original
 
-La hipótesis original planteó `GET /api/tasks` con 1 usuario, 8 materias y 10.000 tareas distribuidas de forma desigual, 30 VU, cuatro corridas de 60 s y p95 como métrica. Se conserva en `docs/experimento/01-hipotesis-inicial.md`.
+Antes de medir dejamos registrada una hipótesis sobre `GET /api/tasks` con un usuario que tenía 10.000 tareas distribuidas de forma desigual.
 
-## Cambio antes de medir
+Ese archivo sigue en:
 
-El diseño finalmente ejecutado cambió a 5.000 usuarios, 5 materias y 1.000 tareas por usuario, para 5.000.000 de tareas. Cada uno de los 30 VU usó una cuenta distinta. Por eso la hipótesis original no puede clasificarse estrictamente como confirmada o refutada.
+`docs/experimento/01-hipotesis-inicial.md`
 
-## Método
+No lo cambiamos después.
+
+## Qué cambió antes de la medición
+
+Antes de hacer la primera corrida real cambiamos la semilla para probar concurrencia con cuentas distintas:
+
+- 5.000 usuarios;
+- 5 materias por usuario;
+- 1.000 tareas por usuario;
+- 5.000.000 de tareas en total;
+- 30 VU con una cuenta distinta por VU.
+
+Por eso no podemos decir que la hipótesis original de 10.000 tareas quedó confirmada o refutada. Lo que sí tenemos es una línea base del escenario nuevo.
+
+## Cómo se ejecuta
 
 ```powershell
 python .\experimentos\consulta-tareas\ejecutar_experimento.py
 ```
 
-## Resultado
+El script levanta la base y la API, carga la semilla, verifica los conteos, registra el commit y ejecuta las cuatro corridas.
 
-Commit medido documentado: `0bbff1ca77b2884a6658d690f58564b2aa37da79`.
+## Resultados
 
-| Corrida | Uso | p95 | Checks fallidos |
-| ---: | --- | ---: | ---: |
-| 1 | calentamiento | 135,74 ms | 0 |
-| 2 | válida | 103,72 ms | 0 |
-| 3 | válida | 90,75 ms | 0 |
-| 4 | válida | 82,93 ms | 0 |
+| Corrida | Uso | p95 |
+| ---: | --- | ---: |
+| 1 | calentamiento | 135,74 ms |
+| 2 | válida | 103,72 ms |
+| 3 | válida | 90,75 ms |
+| 4 | válida | 82,93 ms |
 
-**Línea base = 90,7544952 ms.**
+No hubo checks fallidos.
 
-La medición describe el escenario revisado. No demuestra que PostgreSQL sea la causa del resultado, no cuantifica degradación frente a una base pequeña y no representa literalmente el caso original de 10.000 tareas por usuario.
+La línea base se calcula con la mediana de los p95 de las corridas 2, 3 y 4:
+
+**90,7544952 ms**
+
+## Qué podemos afirmar
+
+Podemos afirmar cómo respondió `GET /api/tasks` bajo esas condiciones.
+
+No podemos afirmar todavía:
+
+- que PostgreSQL sea la causa del resultado;
+- cuánto empeoró frente a una base pequeña;
+- que el mismo resultado se repita por Internet;
+- que una cuenta con 10.000 tareas se comporte igual.
