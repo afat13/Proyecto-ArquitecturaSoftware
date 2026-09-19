@@ -1,16 +1,15 @@
-# 07 — Registro crítico de riesgos y sugerencias de IA
+# 07 — Registro de sugerencias de IA
 
-Este documento conserva una evaluación crítica de sugerencias de IA aplicadas al estado real de Aprende a Aprender. La clasificación usada es: **válido**, **genérico**, **irrelevante** o **falso**. Cada juicio se contrasta con evidencia concreta del repositorio.
+Usamos IA como apoyo, pero varias sugerencias no coincidían con el proyecto. Este archivo deja claro qué se mantuvo y qué no.
 
-| ID | Sugerencia inicial de IA | Clasificación | Verificación contra el sistema | Acción tomada | Evidencia |
-| --- | --- | --- | --- | --- | --- |
-| R-01 | “Android podría conectarse directamente a PostgreSQL.” | Falso | La aplicación Android no establece conexiones directas con PostgreSQL. Las solicitudes se realizan mediante Retrofit hacia la API REST desarrollada en Spring Boot, y las credenciales de PostgreSQL permanecen del lado del backend y de la configuración de infraestructura. | Mantener la separación arquitectónica Android → API REST → PostgreSQL y evitar almacenar credenciales de base de datos en el cliente móvil. | `app/src/main/java/com/example/aprendeaprender/data/remote/ApiClient.kt`, `docker-compose.yml`, `backend/src/main/resources/application.yml` |
-| R-02 | “Consultar muchas tareas puede degradar el rendimiento.” | Válido | `GET /api/tasks` consulta las tareas del usuario autenticado y fue sometido a un escenario reproducible con 5.000 usuarios y 5.000.000 de tareas totales. | Diseñar y ejecutar un experimento de carga con k6, varias corridas y p95 como métrica principal. | `experimentos/consulta-tareas/`, `docs/experimento/05-resultado-linea-base.md` |
-| R-03 | “La base de datos puede ponerse lenta.” | Genérico | La frase no identifica operación, volumen, concurrencia, condición ni métrica verificable. | Reformular el riesgo alrededor de la operación concreta `GET /api/tasks`, con semilla, carga y p95 definidos. | `docs/experimento/03-protocolo-medicion.md`, `experimentos/consulta-tareas/carga.js` |
-| R-04 | “Para soportar la carga es necesario usar Kubernetes.” | Irrelevante | El alcance medido es local y reproducible mediante Docker Compose; no existe evidencia que obligue a introducir orquestación distribuida para este corte. | No incorporar Kubernetes. Reabrir la decisión únicamente si cambian las condiciones de despliegue o escalabilidad. | `docker-compose.yml`, `README.md` |
-| R-05 | “La aplicación todavía guarda sus tareas en Firebase.” | Falso | La persistencia principal actual usa una API Spring Boot y PostgreSQL. Firebase fue retirado de la persistencia principal del sistema. | Mantener PostgreSQL como persistencia principal y la API como frontera entre Android y la base de datos. | `backend/`, `app/src/main/java/com/example/aprendeaprender/data/repository/TaskRepository.kt`, `README.md` |
-| R-06 | “Una sola medición es suficiente para establecer la línea base.” | Genérico | Una corrida aislada puede verse afectada por calentamiento y variación temporal. El protocolo real utiliza cuatro corridas y excluye la primera. | Conservar cuatro corridas, excluir la primera como calentamiento y usar la mediana del p95 de las corridas 2–4. | `docs/experimento/03-protocolo-medicion.md`, `docs/experimento/05-resultado-linea-base.md` |
+| Sugerencia | Resultado | Motivo |
+| --- | --- | --- |
+| Android podría conectarse directo a PostgreSQL | Falso | el cliente usa Retrofit y la API |
+| muchas tareas pueden afectar la consulta | Válido | por eso medimos `GET /api/tasks` |
+| PostgreSQL “va a ser lento” | Muy general | sin carga y métrica no se puede comprobar |
+| deberíamos usar Kubernetes | Fuera de alcance | no hay una necesidad medida para este corte |
+| Firebase sigue siendo la persistencia principal | Falso | la arquitectura actual usa API + PostgreSQL |
+| una sola corrida basta | Falso | usamos cuatro y dejamos la primera como calentamiento |
+| OpenRouter debe aparecer porque existe el archivo | No alcanza | un archivo no demuestra que el flujo actual pase por ahí |
 
-## Conclusión
-
-Las sugerencias de IA se utilizaron como insumo de análisis, no como decisiones automáticas. Las propuestas útiles fueron convertidas en riesgos o verificaciones concretas; las afirmaciones genéricas se reformularon; las irrelevantes se descartaron por alcance; y las falsas se comprobaron contra el código y la arquitectura existentes.
+La regla que estamos usando es la misma del C4: existencia de código no significa automáticamente que sea un elemento arquitectónico activo. Hay que poder seguir la relación.

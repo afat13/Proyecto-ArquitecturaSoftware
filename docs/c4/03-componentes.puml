@@ -1,49 +1,29 @@
-﻿@startuml
+@startuml
 left to right direction
 skinparam shadowing false
-
+rectangle "Android / Retrofit\nApiService" as android
 package "API Spring Boot" {
-
-  rectangle "SecurityConfig +
-TokenAuthenticationFilter
-<<Component>>" as security
-
-  rectangle "AuthController / AuthService
-<<Component>>" as auth
-
-  rectangle "ProfileController
-<<Component>>" as profile
-
-  rectangle "SubjectController
-<<Component>>" as subjects
-
-  rectangle "TaskController
-<<Component>>" as tasks
-
-  rectangle "ChallengeController
-<<Component>>" as challenges
-
-  rectangle "JDBC / Flyway
-<<Component>>" as persistence
+ rectangle "SecurityConfig +\nTokenAuthenticationFilter\n<<Component>>" as security
+ rectangle "AuthController\n<<Component>>" as authController
+ rectangle "AuthService\n<<Component>>" as authService
+ rectangle "ProfileController\n<<Component>>" as profile
+ rectangle "SubjectController\n<<Component>>" as subjects
+ rectangle "TaskController\n<<Component>>" as tasks
+ rectangle "ChallengeController\n<<Component>>" as challenges
+ rectangle "Spring JdbcClient\n<<Infraestructura>>" as jdbc
 }
-
 database "PostgreSQL 16" as db
-rectangle "Android / Retrofit" as android
-
-android --> security : Bearer + HTTP
-
-security --> auth
+android --> security : HTTP + Bearer
+security --> authController
 security --> profile
 security --> subjects
 security --> tasks
 security --> challenges
-
-auth --> persistence
-profile --> persistence
-subjects --> persistence
-tasks --> persistence
-challenges --> persistence
-
-persistence --> db : SQL/JDBC
-
+authController --> authService : register/login/me/logout
+authService --> jdbc : sql(...)
+profile --> jdbc : sql(...)
+subjects --> jdbc : sql(...)
+tasks --> jdbc : sql(...)
+challenges --> jdbc : sql(...)
+jdbc --> db : JDBC / SQL
 @enduml
