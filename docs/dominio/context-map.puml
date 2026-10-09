@@ -1,0 +1,34 @@
+@startuml
+title Aprende a Aprender — Context Map (módulos funcionales observados)
+left to right direction
+skinparam componentStyle rectangle
+actor Estudiante
+cloud "UTADEO externo" as U
+component "Android / Compose" as A
+component "Identidad y perfil" as I
+component "Materias" as M
+component "Tareas" as T
+component "Retos" as R
+component "Sincronización UTADEO\n(cliente Android + endpoints)" as S
+component "Generación Gemma\n(local Android)" as G
+database "PostgreSQL\n(persistencia común)" as DB
+Estudiante --> A : usa
+U --> S : cursos y entregas
+A --> S : invoca sincronización
+S --> M : importa materias
+S --> T : importa tareas
+A --> I : HTTP auth/perfil
+A --> M : HTTP subjects
+A --> T : HTTP tasks
+A --> R : HTTP challenges
+A --> G : solicita preguntas
+G --> R : preguntas vía cliente/API
+I --> DB : JDBC
+M --> DB : JDBC
+T --> DB : JDBC
+R --> DB : JDBC
+note bottom of DB
+  Un único backend y una base compartida.
+  Relaciones lógicas; no microservicios.
+end note
+@enduml
