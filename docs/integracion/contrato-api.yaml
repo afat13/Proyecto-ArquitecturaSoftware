@@ -1,0 +1,67 @@
+openapi: 3.0.3
+info:
+  title: Aprende a Aprender - consulta de tareas existente
+  version: 0.1.0-documentacion
+  description: >
+    Especificación parcial documentada del endpoint real GET /api/tasks.
+    No implica que la API esté versionada ni que la aplicación exponga OpenAPI.
+servers:
+  - url: http://localhost:8080
+    description: Entorno local ilustrativo
+paths:
+  /api/tasks:
+    get:
+      operationId: listarTareas
+      summary: Consultar tareas pertenecientes al usuario autenticado
+      description: >
+        Proveedor: Tareas (Spring Boot). Consumidor: TaskRepository del Android.
+        El backend filtra por Authentication.getName() y asocia nombre de materia
+        mediante JOIN subject. No acepta userId del cliente.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de tareas autorizadas del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tarea'
+        "401":
+          description: Autenticación requerida (comportamiento exacto sujeto a verificación)
+        "500":
+          description: Error interno (respuesta exacta sujeta a verificación)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Tarea:
+      type: object
+      required: [id, subjectId, subjectName, title, description, priority, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        subjectId:
+          type: string
+          format: uuid
+        subjectName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        dueAt:
+          type: string
+          format: date-time
+          nullable: true
+        priority:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
