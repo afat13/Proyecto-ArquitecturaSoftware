@@ -1,18 +1,15 @@
-# Catálogo evaluado de eventos de dominio
+# Eventos candidatos — Aprende a Aprender
 
-El código actual usa operaciones REST/JDBC; los eventos siguientes son **candidatos conceptuales**, no publicaciones implementadas.
+Un evento registra un hecho del dominio **ya ocurrido**. El backend actual no implementa un broker ni publicación de estos eventos.
 
-| Candidato en pasado | Hecho de negocio | Posible interesado | Decisión |
+| Evento conceptual | Contexto productor | Consumidor potencial | Observación |
 |---|---|---|---|
-| TareaCompletada | El usuario terminó una tarea | Analítica futura de progreso | Candidato; no existe consumidor que exija broker |
-| MateriaSincronizada | Se incorporó/actualizó información externa | Diagnóstico de sincronización | Candidato sujeto a distinguir importación de modificación efectiva |
-| RetoDiarioCompletado | Se terminaron actividades de práctica | Analítica futura | Candidato; estado ya persiste en backend |
-| PreguntasGuardadas | Se persistieron preguntas | Ninguno identificado | Rechazado como evento de negocio por ahora |
-| BotonRetoPresionado | Interacción de UI | Ninguno | Rechazado: detalle de interfaz |
-| RegistroInsertado | Acción CRUD | Ninguno | Rechazado: detalle técnico |
+| MateriaCreada | Materias | Tareas y Retos | El alta existe, pero hoy se consulta PostgreSQL directamente. |
+| MateriaEliminada | Materias | Tareas y Retos | La replicación eventual puede permitir referencias obsoletas. |
+| MateriaSincronizada | Sincronización | Reportes | Solo si produjo un cambio significativo. |
+| TareaCompletada | Tareas | Analítica futura | `TaskController.updateStatus` modifica el estado. |
+| RetoDiarioCompletado | Retos | Analítica futura | `ChallengeController.complete` registra progreso. |
 
-## Si se introducen eventos
-Propuesta de sobre (no implementada): `eventId` UUID, `eventType`, `occurredAt` UTC, `aggregateId`, `userId`, `schemaVersion`, `payload`. Para entregar al menos una vez, consumidores deberán registrar `eventId` procesados, evitar efectos duplicados, aplicar reintentos y distinguir orden/consistencia eventual.
+**Rechazados:** `BotonGuardarPulsado` (UI), `RegistroInsertado` (operación técnica), `CertificadoEmitido` (flujo no constatado) y `PreguntasGuardadas` (CRUD sin consumidor demostrado).
 
-## Auditoría de IA
-Las sugerencias de eventos no equivalen a hechos observados. Ningún nombre anterior debe presentarse como clase, tópico o tabla ya existente.
+Antes de implementar mensajería se necesita definir evento inmutable, identificador, instante, esquema versionado, entrega confiable, idempotencia y reprocesamiento. No se introducen estas tecnologías sin evidencia. Ver [registro crítico](registro-critico-ia.md).
