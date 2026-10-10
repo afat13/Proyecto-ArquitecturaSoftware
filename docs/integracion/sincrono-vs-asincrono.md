@@ -1,20 +1,20 @@
-# Evaluación de integración: síncrona frente a asíncrona
+# Análisis de integración: Tareas → Materias
 
-## Problema concreto
-El cliente necesita obtener tareas de su sesión mediante `GET /api/tasks`, y el backend debe devolver solamente las del usuario autenticado. Hoy esto ocurre mediante Retrofit + API Spring Boot + PostgreSQL.
+## Frontera real
+`TaskController.create` usa una transacción y consulta `subject` por `subjectId` y `userId` al crear tareas. `TaskController.list` ejecuta un `JOIN` para conocer el nombre de la materia. Este es el mecanismo As-Is.
 
-| Criterio | REST síncrono actual | Publicación y consumo de eventos propuestos |
+## Alternativa A: síncrona
+Mantener el acceso transaccional y, si la evolución del código lo necesita, encapsular el mínimo contrato de Materias en una interfaz Java interna. Permite validar propiedad y existencia inmediatamente, sin broker, caché de estado externo ni HTTP adicional. Tiene acoplamiento al proveedor y a su disponibilidad, aunque hoy comparten proceso.
+
+## Alternativa B: asíncrona
+Materias publicaría `MateriaCreada`, `MateriaActualizada` y `MateriaEliminada`, mientras Tareas conservaría una proyección. Reduciría dependencia temporal futura, pero introduce consistencia eventual, duplicados, orden de mensajes, broker/outbox, reintentos y reconciliación.
+
+| Criterio | Síncrono | Asíncrono |
 |---|---|---|
-| Dependencia temporal | Android espera respuesta | Productor y consumidor pueden desacoplarse en el tiempo |
-| Acoplamiento | Ruta HTTP y representación conocidas | Contrato de evento, esquema y canal de entrega |
-| Consistencia | Consulta del estado persistido en ese momento | Vista materializada potencialmente desactualizada |
-| Disponibilidad | Un fallo de API afecta la consulta | Requiere cola, reintentos y política de duplicados |
-| Complejidad | Infraestructura ya presente y medida | Broker, consumidores, observabilidad y manejo de fallas |
-| Observabilidad | Petición/respuesta y pruebas k6 existentes | Retrasos, entregas, reintentos, correlación y DLQ adicionales |
+| Validación de materia propia | En la transacción actual | Proyección quizá obsoleta |
+| Dependencia temporal | Inmediata | Menor |
+| Complejidad | JDBC existente | Broker, consumidor, proyección |
+| Observabilidad | SQL y respuesta | Retraso, duplicados, reproceso |
+| Costo | Bajo en un monolito | Alto sin necesidad demostrada |
 
-## Decisión provisional
-Conservar REST síncrono para consultar tareas. Para esta función interactiva no existe evidencia de que un broker reduzca riesgo o complejidad. La línea base histórica de `GET /api/tasks` es p95=90,75 ms, documentada en `docs/experimento/05-resultado-linea-base.md`; **no es una medición del nuevo spike**.
-
-**Reevaluación**: si aparecen requerimientos demostrados de consumidores desacoplados o procesamiento en segundo plano que tolera consistencia eventual.
-
-No se confunde notificación local de Android mediante WorkManager con arquitectura distribuida de eventos.
+**Preferencia provisional:** preservar la comprobación síncrona y no introducir broker. El preregistro existente de Spike 1 mide `GET /api/tasks`; no mide específicamente la frontera de creación de tarea. No debe hacerse pasar la línea base anterior por veredicto de esta integración. Ver [contrato lógico](contrato-frontera-tareas-materias.md).
