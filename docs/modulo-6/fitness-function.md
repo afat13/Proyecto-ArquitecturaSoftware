@@ -1,23 +1,19 @@
-# Fitness function de M6
+# Fitness function del Módulo 6
 
-**Estado:** criterio de selección preparado, implementación condicionada a la decisión del ADR-007.
+El resultado de crecimiento todavía no permite saber cuál componente limita primero. La propiedad que convenga proteger debe venir de la decisión final del [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md), no de un test añadido solo para cumplir.
 
-## Cadena obligatoria
-1. Elegir en [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md) una propiedad estructural verificable que resulte crítica.
-2. Expresar regla inequívoca en términos de dependencias reales del código (paquetes, módulos, controladores, persistencia).
-3. Implementarla como prueba automatizada en el backend y ejecutarla desde el workflow `.github/workflows/ci.yml`.
-4. Verificar estado verde sobre la versión válida.
-5. Introducir **en rama temporal separada** una infracción deliberada y conservar el enlace al job rojo, con SHA de la infracción. Revertir la infracción; comprobar verde otra vez.
+## Definición candidata para discutir con el equipo
 
-## Hoja de registro
+**Decisión candidata:** mantener Tareas y Materias como responsabilidades lógicas dentro del mismo backend hasta que la evidencia justifique extraer un servicio.
 
-| Elemento | Evidencia |
-|---|---|
-| Decisión protegida | PENDIENTE |
-| Propiedad / regla formal | PENDIENTE |
-| Nombre de la prueba | PENDIENTE |
-| Commit verde y workflow | PENDIENTE |
-| Commit con violación y workflow rojo | PENDIENTE |
-| Reversión y workflow verde | PENDIENTE |
+**Propiedad a proteger:** las dependencias de la capa de API deben seguir pasando por los componentes del backend y no incorporar conexiones directas desde Android a PostgreSQL.
 
-No registrar una prueba de estructura simplemente porque sea fácil de programar. No confundir que el workflow exista con demostrar el control negativo.
+**Regla automatizable propuesta:** verificar que el módulo Android no declare el driver JDBC de PostgreSQL ni una URL de conexión JDBC en su código. Es una regla sobre una frontera existente y puede comprobarse automáticamente, pero **no demuestra** la modularidad entre Tareas y Materias.
+
+**Vínculo al ADR:** [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md); formalizar esta elección cuando el equipo apruebe una decisión.
+
+**Prueba negativa:** introducir temporalmente una dependencia JDBC en el build Android en un entorno controlado y comprobar que CI la rechace; revertir el cambio. No crear evidencia de fallo ficticia ni dejar la violación en `main`.
+
+## Estado
+
+Fitness **candidata definida para revisión**, no implementada. El sílabo admite su implementación definitiva hasta semana 14. Registrar SHA de test verde, ejecución roja controlada y recuperación verde cuando se implemente.
