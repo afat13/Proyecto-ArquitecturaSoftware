@@ -1,362 +1,208 @@
 {
-    "metrics": {
-        "http_req_waiting": {
-            "min": 15.707048,
-            "med": 479.833703,
-            "p(50)": 479.833703,
-            "p(95)": 948.7967239999999,
-            "max": 2176.585698,
-            "avg": 482.24999475013277
-        },
-        "tasks_http_status{codigo:400}": {
-            "rate": 0,
-            "count": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "http_req_blocked": {
-            "avg": 0.24662302644530085,
-            "min": 0.002695,
-            "med": 0.007785,
-            "p(50)": 0.007785,
-            "p(95)": 0.020184999999999984,
-            "max": 298.724365
-        },
-        "iterations": {
-            "count": 16715,
-            "rate": 241.23682462145712
-        },
-        "tasks_http_status{codigo:404}": {
-            "count": 0,
-            "rate": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "http_req_duration": {
-            "med": 490.348252,
-            "p(50)": 490.348252,
-            "p(95)": 961.2921889999999,
-            "max": 2179.736276,
-            "avg": 496.0534558920267,
-            "min": 24.968579
-        },
-        "checks": {
-            "fails": 0,
-            "passes": 33430,
-            "value": 1
-        },
-        "http_req_connecting": {
-            "avg": 0.15096454805810852,
-            "min": 0,
-            "med": 0,
-            "p(50)": 0,
-            "p(95)": 0,
-            "max": 201.763955
-        },
-        "vus": {
-            "value": 91,
-            "min": 0,
-            "max": 150
-        },
-        "http_req_tls_handshaking": {
-            "max": 0,
-            "avg": 0,
-            "min": 0,
-            "med": 0,
-            "p(50)": 0,
-            "p(95)": 0
-        },
-        "iteration_duration": {
-            "med": 523.374376,
-            "p(50)": 523.374376,
-            "p(95)": 1002.6162731999997,
-            "max": 2193.443573,
-            "avg": 540.6874524568933,
-            "min": 33.680142
-        },
-        "tasks_http_status{codigo:502}": {
-            "count": 0,
-            "rate": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "tasks_http_status{codigo:429}": {
-            "count": 0,
-            "rate": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "vus_max": {
-            "value": 150,
-            "min": 150,
-            "max": 150
-        },
-        "http_req_sending": {
-            "avg": 0.6815082453602133,
-            "min": 0.009007,
-            "med": 0.024637,
-            "p(50)": 0.024637,
-            "p(95)": 0.27807139999999814,
-            "max": 343.135559
-        },
-        "http_req_receiving": {
-            "max": 613.703237,
-            "avg": 13.121952896531239,
-            "min": 0.083662,
-            "med": 5.826746,
-            "p(50)": 5.826746,
-            "p(95)": 42.55556099999998
-        },
-        "http_req_duration{expected_response:true}": {
-            "min": 24.968579,
-            "med": 490.348252,
-            "p(50)": 490.348252,
-            "p(95)": 961.2921889999999,
-            "max": 2179.736276,
-            "avg": 496.0534558920267
-        },
-        "tasks_http_status{codigo:401}": {
-            "count": 0,
-            "rate": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "tasks_http_status{codigo:503}": {
-            "count": 0,
-            "rate": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "tasks_http_status{codigo:504}": {
-            "count": 0,
-            "rate": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "http_req_failed": {
-            "passes": 0,
-            "fails": 16865,
-            "value": 0
-        },
-        "tasks_http_status": {
-            "count": 16715,
-            "rate": 241.23682462145712
-        },
-        "data_received": {
-            "count": 5435049544,
-            "rate": 78440567.9721722
-        },
-        "tasks_http_status{codigo:200}": {
-            "count": 16715,
-            "rate": 241.23682462145712,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "http_reqs": {
-            "count": 16865,
-            "rate": 243.40167796834425
-        },
-        "data_sent": {
-            "count": 2537400,
-            "rate": 36620.659215942884
-        },
-        "tasks_http_status{codigo:500}": {
-            "count": 0,
-            "rate": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        },
-        "tasks_http_status{codigo:403}": {
-            "count": 0,
-            "rate": 0,
-            "thresholds": {
-                "count>=0": false
-            }
-        }
+  "metrics": {
+    "http_req_waiting": {
+      "min": 15.707048,
+      "med": 479.833703,
+      "p(50)": 479.833703,
+      "p(95)": 948.7967239999999,
+      "max": 2176.585698,
+      "avg": 482.24999475013277
     },
-    "setup_data": {
-        "tokens": [
-            "EwEtmhj2OqAwP93a3KVw_BU8Q5Y0z8d0GwXAl8zSeV0",
-            "ZT1JlcNMfWW5GIFTPLEHhXWIRWGf-vXjfo1iEDeRWwg",
-            "-JrTvUaO0zgGt_0ICK-VaIVsj2AQWYLtlNOUxYdnBks",
-            "qXxfSn2RC_Avs1luG7cs7-KiG6v1UnEg4W-RTZUDvxU",
-            "4F6lM4pvqVNYwWl026O_Wh1q9WK6o8eFSF8LcgoEsjw",
-            "Np3Yyk1wa11j2XV4IbWm_l0P5lIH1cF7S6C5LwIT9xY",
-            "ni5-0pYuBXEeb8UZ5v3NCpJoBIaJYYpVfcvEygs-i00",
-            "Z6SrS1Ka4PzFop8mkWFh66KMsVGVYJEMpoUXZF8IQWk",
-            "JN20bMpCM4f6JTXJkPptlYZJDjep6MOXYUHbayWXKvc",
-            "N6vXX83lHIDUID-nzNR8zLf_Z0dbs3-PR2kLCDJn9NE",
-            "sy80dn4WCH5JtL_tcYmJ64DtanTH6nSNb2FNp1dV13Y",
-            "UiIbmtFtVep4FdXRKDtlBqgzdra10rQRVU8gKmSf70A",
-            "4BE3YvgoMrBJcy1CgqeJZHf7lexbcx5o2kpT7geDvFE",
-            "CmnQz9eb053yOTFIJhsJgD5kWstaY4UliR1at_EBJNE",
-            "KseS4Gagh4PkVUgaHb7MHgU3dMN0cersdlugYcVEpiU",
-            "A5NEMiOHEGddiEz4McvEW5Cie0OgMywg3RMi0watErA",
-            "OpsxEudBcslz4Ip_xEXykhhrXltL79YjvJg09NR-x0E",
-            "EdIxaeKC2CbXWH19p14r6DXguZJUtLD4OPShSwevWIs",
-            "R-OymjfHqnPxRkiT4G_ZnqfJyRSLxLe0ynOoLwtRzrw",
-            "YM84ZVDy3lTwDPG9STp6eQIKX5gwpkbWrsvZ_1zd9tM",
-            "LlOBFF2IzuvEWxMC7R3-t5wCkT4VKvr5rdiVKaLKCqc",
-            "7-gdy-BGPel_fW8qB-qB6v1_ROPjjZFfhuvEr6MwlEc",
-            "Snwh4TMghMPgOSg01KIZiQYyApruOlJVrRA7rBz_QgI",
-            "legIyXTmYM9awTGOCLav8_XcmTxwdra2NWE_1ozK9a0",
-            "BObt53C_4j4ca-GSsb21Z39mg2SZALYCTND886sUAiQ",
-            "Vo0LzCVf_Egh_LmHYGjxRCgWxakKnnx4ZQzpjKMEpYM",
-            "YhO2hI7aVSyXF4XMDP4sdHwa8ch8O6tDE09gsRcgXOU",
-            "te1X3KAQu3Gu6peWbkYEy7eEznvsN8bMGd4EYLB1O5g",
-            "iWl-DQvLBvzfnjOlKyJUF3CuvjW5OemGDhVXSFsMhcY",
-            "TPw7r82dsf6BtQtKfU51QHiErIEF0a9QL1_zjA6GkhY",
-            "b3xoU7EZJfv6x_999u48JwlCzLm_It1pTOZIiy3j95g",
-            "TNN10wjyuuKP1T9QdVFfHjopTgYEceudDj6acp4Wz-c",
-            "aOBX2sRV047NTqfGzASYJ8MGJZyEAOywOO9jZ_yrllA",
-            "aULtSDSsp_IpuWO3uqdR-exjcdnyJ3A2fhuT4eBEWzw",
-            "u9Py3j-Cg9bB69q9cPwZIhZmJtwww4FJkNfc2gEWQLk",
-            "DeQd1Q88nY4GzYlfC_-iwaUr0Vk2fPSH0OFh-eHPGEA",
-            "ePGcXhNVLXwZqLAk4z9e_1rQIlNXU5NRiTo053WcGYs",
-            "a76Q5eOLc0ufVD-f81PGBCdSfdRYyiXyKB2urwnqRM0",
-            "kGZxnYHwve87bNdch6OtGwhtRFYmefro_bAY_IGO57s",
-            "Br_IxwwEkwEtesiyV0TU1_9wz_euP-5kzsOgAeVBKf0",
-            "suKX8GWmQLPDWcd1plPCV3uxwqPhPJLcSc1ZUg74UBI",
-            "9bw_WRufeX0bTuujUcjbWz4N946QJB4U3e1tsO_prro",
-            "AhWruBOw-7uVwdzQUAj0vORfn1Z2DZSGFthuGMN1yL4",
-            "R6ST5W0Bv6YDOy-LQoAhmUJZCqrSnTMiOXhvzDG6ze4",
-            "Ya1qpKFZ5J2B8TZbP97nCQw3B5yc3odSyetYiphsn2w",
-            "uX0pvAC8t7rgkZcicYRtnfL4fe7i1VcUU-tSscBMOMs",
-            "zuyMBwtWBfmuKhznn7VeyXOaCUsua6zz1hV1kgadIS0",
-            "3wXDeFpMdGStlEjirHkZ0Ki1hyFo5Bsr5wL5uEMRDjs",
-            "2Y59y3oL_A9SB-GD5sEIErYq-ndb2zXQR5BIf2LBBaM",
-            "YIrbaQgk_dy3UiFIF8BOqqakfvMehyUIfom3LGdLjx8",
-            "OHKJz-aYwe1rd84GIfR4bUkLsqhzXHCmWTF9gJccwqg",
-            "vUdfmkSHZ50Q6fQjCQyP5B5AWgEyi_qBueEKrkGde3A",
-            "OBWp4ej3pRPzuYlngDsMSK8jgwtkkJFXKx21wPX8190",
-            "hK_cVlePjUBCSaWH4GR0wIo4fvgBb3VNcj3Gc0qFTto",
-            "-Uwrc3AbSs7yaaoiXQXwIqaLbutkY63_JPfzZqcAOvw",
-            "zZzDyLZgZ_yITZmUG-MIzqRVriOCSB7K_oH7EDUpQps",
-            "tv47gbKtTfMLkO1nkhSdjFsM1WolALoKzDi7T50Evg0",
-            "7A-JSXNOlD42pwFxhvOyLdhqaFsrQiu3CyCP818nFGA",
-            "yfMvsWgakKLhoPpC86I2NEmPDWz5tmDf70fuq5jREw0",
-            "Zw_V34C50iq8-ZkddS6X33QrPsh8iYKd1EKU1eZKPVk",
-            "PxpOhJ-fSNm86UZTj3z6CdH-E1l_lc7aFWHboGalwho",
-            "DOL3T-VaGiQVhOeU_hu9QPVxn_8PgYHR5_JLw726ZYc",
-            "xpa4usLHnjn_dCgU2yFV0svcumecvDDpr3BiM-6wiVE",
-            "f6DkzoExE2Ajn6ckoOzQiUhUxjMXEavlHN5dIYLB3Fo",
-            "GYtzeXI8EHpF8PmYtaoFn8XkYo1ayE7bQdiSZ_tjVTo",
-            "ddzcX86IEFJuu0roPOGeXszJaBqn_-3nNAnVNnnZvqo",
-            "pPdpIcop_a-pG7h1lnK6vi_k-uUrhU0y5rxgbeVCOFo",
-            "khHAlHE7wok6VFH_8zGcBu0tcSa-AwyBTGLeDYmOEno",
-            "WcjrFKdMV3jcHs4Bt_CQgP3Ti6mAyvTj8JVwaED2QBY",
-            "_sjN_AmPLOKBmGNghD4HWT_sIf1CGGbWr9fRjzZZAtY",
-            "-4G4VdDKP1JPz9MaZCvEpj5Wp2HcK4fHOEPho-C5CgI",
-            "ZWLwRZw2MJ3OJzMFnO63GvZsTyivbwxuxG-3mQo6DHM",
-            "HkIbkRCC4LmcwBAI9V84BrUUA7FvlspF3zstimO9WKI",
-            "SjTNnhwRRfUIeJ_esZLPo640TtKrTBQGF44oYvXD7zI",
-            "J0tnjhWuMh54I2D61O0TArBV4xDUgyD_fXWQVl7Fo3U",
-            "TwfkGdiBKYLtP15NAW3IzZX--0AYp9-MYm20_9Go-q0",
-            "sEH0hZPdMT2h3RS5Ije_pquf_q9QEFXVxD-LlPdAsz0",
-            "nz5E4rkXo6KlME8YWGlzQJJQMciLqek1gn5uq4QF3kY",
-            "kZlOQllrs-4mZkQDOzQxV1Xn27k8JYSD6Pvjaw1Qdlo",
-            "fBxShgAe0oxTweeZ4C2lUbkbCjjOzSHV6p-slqfp-94",
-            "O1UDsZpiUIh_I4xZPlkVXdevAMyrmCDHU5BVnZmx_lU",
-            "WSuF5kSs9Douhtx7bb8Qlo6Lz1Juc8ExO1U-L3zwf5E",
-            "etloC_tW-3qBLpnU-pOeAUbM9lLxZQ-lh-6A9FDdOK0",
-            "WPuULO-UFcWnviL_kkQtjtJK6PT9ar3zhoIoT5pgnyY",
-            "ZMnQo9B9Y3yJBAq61YiamjjiT_bOZ9BiUqzjBjTKUiU",
-            "tCkkYYzbOSa-JKx_Blt9FDb8ij5LsMwGcbwdvJNojsM",
-            "hY_43u2nphVwpTsIWBqcq4aHuPifJ0vGKV-gz2Qv47o",
-            "UxOhQqy4dctXR1Hg4GrWXSRXxJD0LmmCAF5qIATU93c",
-            "yEil_R9ywqeFbozWIw_OZjeGkSgvtFgZPN4mkQcnZSM",
-            "LAJ5gjjyOlYfozRy5BLkfwyXqD8nWVOCZMi69oPBrXQ",
-            "3gvAIDrp28ahofiCfx3ufMJodoLgZ_6P2IiLRvs5hss",
-            "UVAElAoYkdzZm6X2sRfCy72qWPEARpsX-tjXt3794Yc",
-            "n0RFuf8pegcuGA4fRrhSJTKaru0aXIJi8DpcKY1KGhg",
-            "mXBv3lO17M70Lt_m14IH4P6ync2_FuZXl78pWDso9tE",
-            "Xnk6VHtpIzocpVFMPHf4svkn1G2AzROInxYfoH5morM",
-            "92Z-jyF_n6h5VPbPPGb15RdM3HMVljZFPVt5nz8lGq8",
-            "dGQmPg89UQbhWsSxEDHiITd_jhFPbJszwW3FXtIyQxk",
-            "4LQd3ybnRFRVeFxAOnR1k0qiiEcmGB9ipOBOZ5WkQJw",
-            "iP2PoJibnb93tMJVVpGFWmSeh-hXiw0fqB0_mNxi3JM",
-            "vE2ptvJ_FAO_e19jIbinTNjR8QVM4Oagwvohl13bpGk",
-            "C_AUysCZRjGZn9UEkWTTTdaNEg9OcfD0qgJx_K8X9_Y",
-            "jyK5ix-l1PcPcqgXdfGkiCAIuA6bopq3qo1CfkvLmN4",
-            "01iUEaT7tf-tqYMPcKhUQiz6v4_LUAdJbcl3BEuc258",
-            "DHLfc3CRgvQXBrIJM586CSh5gcT4NWNAkniyNEvp5vg",
-            "oW2qBsKod-0vaBHNBnd7YXACl_rndvODuVUi9fwE6aw",
-            "-OC9QlLuH4Lc3aJQDNV8WwFnRNh1o4QeEl-KtgIU8RY",
-            "MqRAAKqHqtQFQWs-xPfMYL3C83Y7NXlmwjc9AcN4IWA",
-            "RnLTJaCw-PqTRd6zX1hHAUrnmtURUGKqAnHMk-7mSKM",
-            "pR4wmLslaTqa2bd1ke6Abo-Gx2iVmyf6dK6NpEdn7-0",
-            "T7Hjx-vHjon_eNM3wvXAzlfT51oPf7Fm2rgAJD1N40g",
-            "DlReWufGvdlAz4dWo-NyoyP79xj5Nhn4SwY2piDwqnQ",
-            "bamJlCUqYIxAQaDpRNp7y3navMw_2bPW8Jk5MZecVh8",
-            "7xompfzOV55ZKAv_EUFjiLFcEbYFmCs42aWzBu510SA",
-            "oHN-oOZlPt_YFqPenuRRL7VGVyySNryMgcBCm8Ifl6U",
-            "rqv2_UIAItdawBQsv0Je_HketQl8C5rvIdzTMRougCY",
-            "t-JqBbPUfIjw8BD9v8eYLEyCLgqhkNyDYU31W1lxbXI",
-            "ZH1_Crma1MFAO3_XuBtlokpE3vczNF126997l4yFxFw",
-            "9TLcNkNLYgAcKvzLRGrz2DjA9-UAek5znSbyatNEars",
-            "L7vq1vMmcxqbSMXkFIFodV7Nq9FkDwS4Xrk7PO9M2n0",
-            "as91i6eZgnY08e0U6QSfmIFk01LfhUy9GAd813uYBlM",
-            "bZJ4e4tij9KIJtIjNvxyc9omBRUVopDqJVQ0vUJD8dw",
-            "nhpFjJcVwHJvcwaS0QNEElwyMn4UmAB_B57nPop4Xn4",
-            "RgA2amT43GHd0O3ToDbk23JphAJVHXjs6_XQhT2zJfY",
-            "w1W3Tm4YJT12JZ8V2e4jlEP3Gj5Elf-S5dUE09vyrkA",
-            "WJr0Hwc_ziE5veh5k2FN1WcDyslyf_rZsFRjo7bk7MI",
-            "gVItrYj_SHioeyMzG8aigZt7WbVfY7-K6hO1EHokCCY",
-            "XdM_EWGsGCtD24rh3jrkLjmXa97TYcK8im5F3C2ip4w",
-            "VKVr3VC2n3Vm32OEhCoQNgwzCF9iZi7b6AwmKwQaNA0",
-            "rPr9DRd3tiwJz_zNODprqMPFV2fNudU5gU_C_s74zg4",
-            "96hBmFx1qhgydRuYFrprGU-B4DokVlPFPCwireOVDvk",
-            "dTqoDEIBPAAMIgmEwGNJHKlt-TX2C3iGdAUam5ZnTFo",
-            "Ik8xpMfy4wLUakFTZ7KvrWX5yWu7eWRuUSTjtPEFoc4",
-            "LS8O5ny8zHXqOdNKY8ztUHfZ7V2s3CotYBCtBYwjC7c",
-            "OBSNjYuLXd2dSY9APSGC3W4POk_AKpnftwC0BfHgjl8",
-            "A0YajuBmcvCPWCWK6X3XMT1tqunI2dqihaUsZQAs0_8",
-            "zk5ctMYjp72-cJv10-MZrERAd4XP08-HaV5vYBh0jBk",
-            "KFb50d_NKgzwaE8qETkMLrTlf0z4SYe0ijQ6pd5pVCo",
-            "0oCuwz06uX3th6pxFTV_lUR4J5BDLt6zDgjUVnDE-UQ",
-            "7_sfIvF2LW5vOTWsevaUK5RGLtaHJnaQGD9tPqB6l2s",
-            "4aep0TqKlhd1-uAoHbnFckGJoFx9StCw9QoO-cX0JkY",
-            "tYANwadZmD_OMhYHMdgsbWVGpnSDJUtcP2FUiC9U5Qs",
-            "dIIcbwQHnoYs36ifb19jaS1xH4aYk9eoS4FaJ_1yle0",
-            "p_-rPaZaLfqpeC9zAvU5AeOwDWWyuunXNDh7bUQCjsA",
-            "TnvUNhrmDQ-Q2flKcGGXPRBfZeq3xtO_4l2JJHux8rc",
-            "wdIMEj5RSiZ6W35yChXaO3gLegO4ykHBv8KJBrIy2jg",
-            "7WDbQd28UPxBOGuSMaQXR9SxNr1SKo98SmQmqIzMpzE",
-            "G-vdoU-Vx2Tc8lsxqHEP0P-SnwYwA16NvrnSkUv12Sc",
-            "7FQe0w4OOsIXjX0jED2F448j8_Gv_ceNNexjj_d96ts",
-            "Ax3LQYxEvY4jmAFwd5ZrvFH0MX75jjSdRMs6AnnOchY",
-            "9TpSQLTOF3D3rxwZu8FNdF2jGTpHZKPpZBi_bCsnFH0"
-        ]
+    "tasks_http_status{codigo:400}": {
+      "rate": 0,
+      "count": 0,
+      "thresholds": {
+        "count>=0": false
+      }
     },
-    "root_group": {
-        "name": "",
-        "path": "",
-        "id": "d41d8cd98f00b204e9800998ecf8427e",
-        "groups": {},
-        "checks": {
-                "respuesta 200": {
-                    "name": "respuesta 200",
-                    "path": "::respuesta 200",
-                    "id": "b304736d6fbf81af5836a4c1d2b9d46c",
-                    "passes": 16715,
-                    "fails": 0
-                },
-                "arreglo de 1000 tareas": {
-                    "id": "0fa977e2fe576287b85514b95bfdac43",
-                    "passes": 16715,
-                    "fails": 0,
-                    "name": "arreglo de 1000 tareas",
-                    "path": "::arreglo de 1000 tareas"
-                }
-            }
+    "http_req_blocked": {
+      "avg": 0.24662302644530085,
+      "min": 0.002695,
+      "med": 0.007785,
+      "p(50)": 0.007785,
+      "p(95)": 0.020184999999999984,
+      "max": 298.724365
+    },
+    "iterations": {
+      "count": 16715,
+      "rate": 241.23682462145712
+    },
+    "tasks_http_status{codigo:404}": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count>=0": false
+      }
+    },
+    "http_req_duration": {
+      "med": 490.348252,
+      "p(50)": 490.348252,
+      "p(95)": 961.2921889999999,
+      "max": 2179.736276,
+      "avg": 496.0534558920267,
+      "min": 24.968579
+    },
+    "checks": {
+      "fails": 0,
+      "passes": 33430,
+      "value": 1
+    },
+    "http_req_connecting": {
+      "avg": 0.15096454805810852,
+      "min": 0,
+      "med": 0,
+      "p(50)": 0,
+      "p(95)": 0,
+      "max": 201.763955
+    },
+    "vus": {
+      "value": 91,
+      "min": 0,
+      "max": 150
+    },
+    "http_req_tls_handshaking": {
+      "max": 0,
+      "avg": 0,
+      "min": 0,
+      "med": 0,
+      "p(50)": 0,
+      "p(95)": 0
+    },
+    "iteration_duration": {
+      "med": 523.374376,
+      "p(50)": 523.374376,
+      "p(95)": 1002.6162731999997,
+      "max": 2193.443573,
+      "avg": 540.6874524568933,
+      "min": 33.680142
+    },
+    "tasks_http_status{codigo:502}": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count>=0": false
+      }
+    },
+    "tasks_http_status{codigo:429}": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count>=0": false
+      }
+    },
+    "vus_max": {
+      "value": 150,
+      "min": 150,
+      "max": 150
+    },
+    "http_req_sending": {
+      "avg": 0.6815082453602133,
+      "min": 0.009007,
+      "med": 0.024637,
+      "p(50)": 0.024637,
+      "p(95)": 0.27807139999999814,
+      "max": 343.135559
+    },
+    "http_req_receiving": {
+      "max": 613.703237,
+      "avg": 13.121952896531239,
+      "min": 0.083662,
+      "med": 5.826746,
+      "p(50)": 5.826746,
+      "p(95)": 42.55556099999998
+    },
+    "http_req_duration{expected_response:true}": {
+      "min": 24.968579,
+      "med": 490.348252,
+      "p(50)": 490.348252,
+      "p(95)": 961.2921889999999,
+      "max": 2179.736276,
+      "avg": 496.0534558920267
+    },
+    "tasks_http_status{codigo:401}": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count>=0": false
+      }
+    },
+    "tasks_http_status{codigo:503}": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count>=0": false
+      }
+    },
+    "tasks_http_status{codigo:504}": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count>=0": false
+      }
+    },
+    "http_req_failed": {
+      "passes": 0,
+      "fails": 16865,
+      "value": 0
+    },
+    "tasks_http_status": {
+      "count": 16715,
+      "rate": 241.23682462145712
+    },
+    "data_received": {
+      "count": 5435049544,
+      "rate": 78440567.9721722
+    },
+    "tasks_http_status{codigo:200}": {
+      "count": 16715,
+      "rate": 241.23682462145712,
+      "thresholds": {
+        "count>=0": false
+      }
+    },
+    "http_reqs": {
+      "count": 16865,
+      "rate": 243.40167796834425
+    },
+    "data_sent": {
+      "count": 2537400,
+      "rate": 36620.659215942884
+    },
+    "tasks_http_status{codigo:500}": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count>=0": false
+      }
+    },
+    "tasks_http_status{codigo:403}": {
+      "count": 0,
+      "rate": 0,
+      "thresholds": {
+        "count>=0": false
+      }
     }
+  },
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e",
+    "groups": {},
+    "checks": {
+      "respuesta 200": {
+        "name": "respuesta 200",
+        "path": "::respuesta 200",
+        "id": "b304736d6fbf81af5836a4c1d2b9d46c",
+        "passes": 16715,
+        "fails": 0
+      },
+      "arreglo de 1000 tareas": {
+        "id": "0fa977e2fe576287b85514b95bfdac43",
+        "passes": 16715,
+        "fails": 0,
+        "name": "arreglo de 1000 tareas",
+        "path": "::arreglo de 1000 tareas"
+      }
+    }
+  }
 }
