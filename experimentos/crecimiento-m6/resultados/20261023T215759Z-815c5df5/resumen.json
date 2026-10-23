@@ -1,0 +1,25 @@
+{
+  "niveles": {
+    "30": {
+      "p95_mediano_ms": 144.66289184999997,
+      "corridas_validas": 3
+    },
+    "50": {
+      "p95_mediano_ms": 264.29292519999996,
+      "corridas_validas": 3
+    },
+    "100": {
+      "p95_mediano_ms": 616.482033,
+      "corridas_validas": 3
+    },
+    "150": {
+      "p95_mediano_ms": 934.4672372,
+      "corridas_validas": 3
+    },
+    "200": {
+      "p95_mediano_ms": 1287.5816235999998,
+      "corridas_validas": 3
+    }
+  },
+  "nota": "Auditar log, códigos HTTP y recursos antes de interpretar."
+}

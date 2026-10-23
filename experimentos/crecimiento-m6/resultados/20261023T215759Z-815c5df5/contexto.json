@@ -1,0 +1,23 @@
+{
+  "fecha_utc": "20261023T215759Z",
+  "sha_medido": "815c5df5a84692aa9120ce208bff76f5d58bc15b",
+  "sistema": "Windows-11-10.0.26300-SP0",
+  "cpu": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+  "arquitectura": "AMD64",
+  "docker": "Docker version 29.7.2, build a7dcaa6",
+  "compose": "Docker Compose version v5.4.0",
+  "niveles_vus": [
+    30,
+    50,
+    100,
+    150,
+    200
+  ],
+  "corridas_por_nivel": 4,
+  "duracion": "60s",
+  "k6": "grafana/k6:0.54.0",
+  "instrumento": "carga-m6.js",
+  "postgres": "postgres:16-alpine",
+  "observaciones_maquina": "",
+  "generador_y_servidor_en_mismo_host": true
+}

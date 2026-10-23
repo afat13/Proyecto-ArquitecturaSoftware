@@ -1,0 +1,3 @@
+CONTAINER ID   NAME                                  CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O         PIDS
+6bced8595c3f   proyecto-arquitecturasoftware-api-1   0.26%     630.2MiB / 7.376GiB   8.34%     7.36GB / 14.3GB   0B / 213kB        69
+6c0908eb03e6   proyecto-arquitecturasoftware-db-1    0.00%     510.3MiB / 7.376GiB   6.76%     65.2MB / 7.32GB   1.16GB / 1.45MB   16
