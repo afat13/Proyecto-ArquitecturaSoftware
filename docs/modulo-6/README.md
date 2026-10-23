@@ -1,23 +1,20 @@
-# Módulo 6: crecimiento y resiliencia
+# Módulo 6: crecimiento, resiliencia y costo
 
-La idea de este módulo es medir qué pasa cuando aumentamos los usuarios concurrentes. No necesitamos volver a inventar la línea base: ya tenemos cuatro corridas de `GET /api/tasks` a 30 usuarios virtuales, con un p95 mediano de 90,75 ms. Esa medición corresponde al entorno y al commit que quedaron registrados en [la línea base](../experimento/05-resultado-linea-base.md).
+El experimento de carga **ya se ejecutó** el 23 de octubre. Se hicieron 20 corridas sobre cinco escalones: 30, 50, 100, 150 y 200 usuarios virtuales. La semilla se verificó: 5.000 usuarios, 25.000 materias, 5.000.000 de tareas.
 
-Lo que todavía no tenemos son resultados válidos de crecimiento ni evidencia para justificar un cambio de arquitectura.
+Los resultados registran latencia creciente y respuestas correctas. Con más carga, el p95 global subió de 144,66 ms a 1.287,58 ms, pero los GET/s no aumentaron en la misma proporción. La causa aún no está identificada porque el instrumento no separó los percentiles de GET de los logins y porque no capturamos utilización continua del generador.
 
-## Archivos de trabajo
+## Evidencias
 
-- [Protocolo propuesto para aumentar carga](../../experimentos/crecimiento-m6/00-preregistro.md).
-- [Dónde guardar las nuevas corridas](../../experimentos/crecimiento-m6/README.md).
-- [Fallos que encontremos y opciones de resiliencia](matrices.md).
-- [Comparación de alternativas y costos](distribucion-costos.md).
-- [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md).
-- [Regla arquitectónica para CI](fitness-function.md).
-- [Relación de evidencias para el corte](trazabilidad.md).
+- [Preregistro](../../experimentos/crecimiento-m6/00-preregistro.md): commit `007defa`, anterior a las pruebas.
+- [Ejecución y análisis de las 20 corridas](../../experimentos/crecimiento-m6/01-analisis-20261023.md): commit medido `815c5df5`. Los archivos originales siguen pendientes de subir desde la máquina donde se ejecutaron.
+- [Matriz de fallos y resiliencia](matrices.md): separa degradación medida de hipótesis no confirmadas.
+- [Comparación de estilos y costos](distribucion-costos.md).
+- [Propuesta de IA y revisión](critica-ia.md).
+- [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md): análisis escrito; falta la decisión y el mini-comité.
+- [Fitness function](fitness-function.md): candidata definida, sin prueba automática todavía.
+- [Trazabilidad](trazabilidad.md): contiene lo disponible y lo pendiente.
 
-## Qué sigue
+## Para cerrar el módulo
 
-Primero debemos resolver la diferencia entre el Spike 1 sobre consultas y la frontera Tareas–Materias. Después se confirma el protocolo de crecimiento en un commit y se ejecutan nuevas cargas por escalones. Los resultados se guardan sin sobrescribir los archivos de la línea base.
-
-Con esas mediciones podremos escribir la matriz de fallos y decidir si vale la pena introducir alguna táctica de resiliencia o cambiar la distribución del sistema. El ADR-007 y la fitness function deben basarse en esa decisión, no en un resultado supuesto.
-
-El módulo no está cerrado mientras falten resultados, veredicto del mini-comité y prueba automatizada de la regla elegida.
+Subir los resultados originales a `/experimentos`, revisar la instrumentación y las limitaciones de máquina, decidir qué arquitectura conserva o cambia el equipo, registrar el veredicto del mini-comité y elegir la fitness function que realmente proteja la decisión. El código de producción no se cambió para estas pruebas.
