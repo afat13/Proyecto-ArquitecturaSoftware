@@ -8,6 +8,18 @@ export const options = {
   vus: Number(__ENV.VUS || 30),
   duration: __ENV.DURATION || '60s',
   summaryTrendStats: ['avg', 'min', 'med', 'p(50)', 'p(95)', 'max'],
+  thresholds: {
+    'tasks_http_status{codigo:200}': ['count>=0'],
+    'tasks_http_status{codigo:400}': ['count>=0'],
+    'tasks_http_status{codigo:401}': ['count>=0'],
+    'tasks_http_status{codigo:403}': ['count>=0'],
+    'tasks_http_status{codigo:404}': ['count>=0'],
+    'tasks_http_status{codigo:429}': ['count>=0'],
+    'tasks_http_status{codigo:500}': ['count>=0'],
+    'tasks_http_status{codigo:502}': ['count>=0'],
+    'tasks_http_status{codigo:503}': ['count>=0'],
+    'tasks_http_status{codigo:504}': ['count>=0'],
+  },
 };
 
 const URL = __ENV.BASE_URL || 'http://api:8080';
