@@ -1,19 +1,25 @@
-# Propuesta de IA y revisión del equipo — Módulo 6
+# Propuesta de microservicios de IA y revisión — M6
 
-**Solicitud hecha a la IA en esta revisión:** «Propón una estrategia para convertir Aprende a Aprender, que hoy tiene una API Spring Boot y PostgreSQL, en una arquitectura de microservicios. Indica ventajas, riesgos, costos y cuándo sería razonable migrar».
+## Solicitud a IA
 
-## Propuesta generada por IA
+«Propón una estrategia para convertir Aprende a Aprender (Android, API Spring Boot y PostgreSQL) en microservicios. Explica separación de responsabilidades, beneficios, riesgos y costos».
 
-Separar progresivamente la autenticación, las materias y las tareas en servicios desplegables. Los clientes consumirían un punto de entrada API; cada servicio se encargaría de sus datos y se comunicaría mediante contratos explícitos. Se podría añadir balanceo de carga y observabilidad. Una migración gradual reduciría el riesgo de moverlo todo al mismo tiempo.
+## Respuesta resumida de IA
 
-## Revisión con lo que sabemos del proyecto
+Separar progresivamente autenticación, materias y tareas en servicios desplegables de forma independiente; definir contratos de comunicación, usar un punto de entrada común y añadir balanceo y observabilidad. Migrar por etapas.
 
-La parte aprovechable es la idea de tener responsabilidades claras y migrar por etapas en vez de reemplazar el backend completo. Sin embargo, la propuesta no presenta evidencia de que Aprende a Aprender necesite procesos independientes. Hoy la operación de creación de tareas valida la materia en una consulta SQL dentro del backend. Si Tareas y Materias se separaran, esa comprobación introduciría llamadas de red o nuevas reglas de consistencia.
+Esta es **una propuesta de IA**, no código implementado ni una decisión aprobada.
 
-Tampoco tenemos todavía mediciones de crecimiento de M6, fallos observados o costos reales de operar varios despliegues. Por eso sería prematuro convertir la propuesta en una decisión. El experimento de `GET /api/tasks` debe mostrar primero dónde se degrada la consulta. Aun así, un problema en GET no demostraría automáticamente que separar microservicios sea la solución.
+## Qué respaldan nuestras mediciones
 
-## Comprobación posterior
+El experimento del 23 de octubre registra una mediana de p95 global de 144,66 ms a 30 VUs y 1.287,58 ms a 200 VUs. Los GET/s no crecieron en la misma proporción (237,97 y 242,61 como medianas de extremos). Hubo cero checks fallidos entre los 321.106 GET realizados.
 
-Cuando estén los resultados, revisar afirmación por afirmación: beneficio justificado, costo agregado, evidencia de M6 y alternativa más sencilla. El veredicto arquitectónico corresponde al equipo y se registrará en [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md).
+**A favor:** la recomendación de aclarar responsabilidades y mejorar observabilidad es razonable. Ya tenemos un Context Map y fronteras lógicas que pueden revisarse sin desplegar microservicios.
 
-**Estado:** se guardó una propuesta generada de IA para discusión; la auditoría contra los nuevos resultados permanece pendiente.
+**En contra de migrar directamente:** no se midió el componente limitante. Separar Tareas y Materias convertiría las validaciones locales de `TaskController.create` en un problema de comunicación y consistencia distribuida. La propuesta no cuantifica infraestructura adicional ni disponibilidad del equipo.
+
+**Límite de la prueba:** el p95 reportado combina GET con logins porque k6 no exportó la submétrica exclusiva de GET. Tampoco registramos recursos del generador durante la carga.
+
+## Evaluación
+
+La propuesta de IA **no queda respaldada como decisión de migración** por estas mediciones. Primero debemos medir el recurso limitante, evaluar mejoras simples y comprobar la necesidad de desplegar capacidades por separado. El equipo debe contrastarlo con sus restricciones y registrar su veredicto en [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md).
