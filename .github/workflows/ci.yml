@@ -50,10 +50,13 @@ jobs:
         run: docker compose config
 
       - name: Validar scripts del experimento
-        run: python -m py_compile experimentos/consulta-tareas/ejecutar_experimento.py experimentos/consulta-tareas/resumir_resultados.py
+        run: python -m py_compile experimentos/consulta-tareas/ejecutar_experimento.py experimentos/consulta-tareas/resumir_resultados.py experimentos/crecimiento-m6/ejecutar_crecimiento.py
 
       - name: Validar instrumento k6
         run: docker run --rm -v "$PWD/experimentos/consulta-tareas:/work" -w /work grafana/k6:0.54.0 inspect carga.js
+
+      - name: Validar instrumento de crecimiento M6
+        run: docker run --rm -v "$PWD/experimentos/consulta-tareas:/work" -w /work grafana/k6:0.54.0 inspect carga-m6.js
 
       - name: Publicar reportes si fallan las pruebas
         if: failure()
