@@ -63,6 +63,8 @@ def summary(path, level, number, exit_code):
     checks = values(metrics.get("checks", {}))
     requests = values(metrics.get("http_reqs", {}))
     failures = values(metrics.get("http_req_failed", {}))
+    statuses = {key: values(value).get("count") for key, value in metrics.items()
+                if key.startswith("tasks_http_status{") and "codigo:" in key}
     p95 = duration.get("p(95)")
     p50 = duration.get("med", duration.get("p(50)"))
     errors = checks.get("fails")
@@ -71,6 +73,7 @@ def summary(path, level, number, exit_code):
     return {"vus": level, "corrida": number, "calentamiento": number == 1,
             "p50_ms": p50, "p95_ms": p95, "solicitudes_s": requests.get("rate"),
             "http_failed_rate": failures.get("rate"), "checks_fallidos": errors,
+            "codigos_http": statuses,
             "salida_k6": exit_code, "instrumentacion_completa": valid,
             "json": path.name}
 
@@ -91,7 +94,7 @@ def main():
                "docker": out(["docker", "--version"]),
                "compose": out(["docker", "compose", "version"]),
                "niveles_vus": LEVELS, "corridas_por_nivel": RUNS,
-               "duracion": DURATION, "k6": "grafana/k6:0.54.0",
+               "duracion": DURATION, "k6": "grafana/k6:0.54.0", "instrumento": "carga-m6.js",
                "postgres": "postgres:16-alpine",
                "observaciones_maquina": os.getenv("MAQUINA_NOTAS", ""),
                "generador_y_servidor_en_mismo_host": True}
@@ -108,7 +111,7 @@ def main():
             args = ["docker", "compose", "--profile", "load", "run", "--rm",
                     "-e", f"VUS={level}", "-e", f"DURATION={DURATION}",
                     "-v", f"{directory.resolve()}:/evidencia", "k6", "run",
-                    f"--summary-export=/evidencia/{name}.json", "carga.js"]
+                    f"--summary-export=/evidencia/{name}.json", "carga-m6.js"]
             print(f"Ejecutando {name}")
             # Estado de recursos antes y después; no sustituye un muestreo continuo.
             (directory / f"{name}-docker-antes.txt").write_text(
