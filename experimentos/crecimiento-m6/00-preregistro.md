@@ -1,31 +1,34 @@
-# Preregistro propuesto — experimento de crecimiento M6
+# Preregistro del experimento de crecimiento — Módulo 6
 
-**Estado: BORRADOR, NO SELLADO COMO HIPÓTESIS DEFINITIVA, NO EJECUTADO.** Ratificar este protocolo **después** de cerrar M5; crear un commit identificable anterior al primer ensayo de M6. No editar criterios tras ver resultados.
+**Fecha del protocolo:** 23 de octubre de 2026. **Estado:** definido antes de medir M6. Este archivo debe conservarse sin modificar cuando existan resultados; cualquier cambio posterior al diseño se explica en otro documento.
 
 ## Pregunta
 
-¿Cómo cambian la latencia, los fallos y el throughput de `GET /api/tasks` al aumentar la concurrencia, y en qué punto dejan de ser interpretables los datos por saturación del generador?
+¿Cómo cambia el rendimiento y la corrección de `GET /api/tasks` cuando aumentamos la cantidad de usuarios virtuales en el mismo backend?
 
-## Diseño propuesto a ratificar
+## Qué cambiamos y qué mantenemos
 
-- Escalones: 30 (puente con línea base), 50, 100, 150, 200 VUs.
-- Por escalón: una corrida de calentamiento y **tres corridas medidas**, 60 s cada una.
-- Cambia solo el número de VUs. Mantener código del servicio, versión y configuración de PostgreSQL/Docker, semilla, host, CPU/memoria disponible, generador k6, script, duración y autenticación. Si no se logra, documentar e invalidar comparación directa.
-- Métricas por corrida: `http_req_duration` p50/p95 (para etiqueta de consulta), solicitudes/s, `http_req_failed`, checks funcionales, códigos HTTP, CPU/RAM de backend, PostgreSQL y generador, y signos de saturación del generador.
-- Exportar resumen JSON, logs completos y contexto con SHA exacto (servidor y script), fecha/hora, hardware, recursos de contenedores, versión Java/PostgreSQL/k6, dataset e instrumentación.
-- Generador potencialmente saturado: CPU sostenida cercana a límite, memoria/paginación, `dropped_iterations`/incapacidad de sostener carga, o evidencia de cuello de botella local. No inferir automáticamente que el backend se degrada cuando el generador falla.
-- Invalidar corrida con login incorrecto, datos sin semilla requerida, checks funcionales fallidos por preparación, cambio de configuración, uso no comparable del host o instrumentación ausente para el análisis declarado.
-- No alterar índices, queries ni arquitectura durante la curva de crecimiento. Una táctica de resiliencia se ensaya **después** en otro protocolo, manteniendo control.
-- Resultados negativos y escalones imposibles deben registrarse.
+- **Variable independiente:** usuarios virtuales simultáneos: **30, 50, 100, 150 y 200**, siempre en este orden. El nivel de 30 permite contrastar condiciones con la medición de M2.
+- **Constantes:** mismo equipo y configuración Docker, backend sin cambios entre niveles, imagen PostgreSQL 16, semilla de 5.000 cuentas, 25.000 materias y 5.000.000 de tareas; exactamente 1.000 tareas por usuario, mismo script k6 y credenciales de prueba, misma duración de **60 segundos**.
+- **Repeticiones por nivel:** cuatro corridas: una de calentamiento y tres para el análisis. Se mantienen las cuatro salidas, incluso si una falla.
+- **Sin optimizaciones intermedias:** no modificar consultas, índices, pool de conexiones ni código durante el experimento. Si cambia algo, ese nivel no puede compararse directamente con los anteriores.
 
-## Apuesta previa del componente limitante
+## Qué registramos
 
-**Pendiente de hipótesis del equipo, previo a medición.** No se anticipa como hallazgo que PostgreSQL o Spring Boot falle primero. Registrar componente esperado, escalón específico, mecanismo, razón y regla de falsación en commit antes de experimentar, tal como pide la guía del curso.
+Para cada corrida: SHA del código probado, fecha, hardware, versión de Docker/k6, número de VUs, p50 y p95 de la consulta, throughput, checks funcionales, códigos HTTP, errores y duración. También uso de CPU y memoria del backend, PostgreSQL y del generador cuando sea posible medirlos. Registrar si el generador comparte equipo con los servicios. Conservar los JSON y logs de k6, sin sustituirlos por una tabla.
 
-## Comparabilidad
+## Cómo comprobamos que las respuestas sirven
 
-La [línea base histórica](../../docs/experimento/05-resultado-linea-base.md) mide 30 VUs, cuatro corridas de 60 s, semilla de cinco millones de tareas y p95 mediano de 90,7544952 ms. No es una corrida de este protocolo, ni se debe comparar sin verificar máquina/configuración.
+Antes de la carga, verificar que la semilla tiene los volúmenes esperados. Cada VU debe iniciar sesión con su usuario y obtener token válido. En cada GET, comprobar código 200, respuesta JSON y exactamente 1.000 tareas; conservar distribución de códigos HTTP de la consulta. Los fallos de respuesta durante una carga válida **son resultados de degradación**, no se descartan solo porque sean negativos.
 
-## Clasificación final
+## Corridas inválidas
 
-Solo luego de ejecutar, clasificar cada escalón como válido / inválido y separar hechos observados de atribuciones causales.
+Son inválidas las corridas donde falta el conjunto de datos, falla la preparación/login, se rompe el instrumento, no se puede identificar el commit, cambia la configuración sin registro o falta la información mínima para saber qué se ejecutó. Si el generador se satura o pierde capacidad de sostener la carga, registrar la corrida como **no concluyente para atribuir el límite al backend**; conservar la evidencia y explicar el problema. No atribuir automáticamente cualquier lentitud a PostgreSQL o Spring Boot.
+
+## Cómo analizamos
+
+Reportar p50/p95 y throughput por nivel y la mediana de los p95 de las corridas 2–4 si las tres son válidas. No reemplazar los p95 originales con ese resumen. Comparar contra la [línea base M2](../../docs/experimento/05-resultado-linea-base.md): 30 VUs, 60 s por corrida y p95 mediano de 90,7544952 ms, con commit `0bbff1ca77b2884a6658d690f58564b2aa37da79`. La comparación cuantitativa directa exige revisar diferencias de máquina, código y configuración.
+
+## Lo que todavía no sabemos
+
+No se define de antemano qué componente fallará primero. Primero se miden los escalones y después se construyen las matrices de fallos y resiliencia. El experimento no demuestra por sí solo que se necesiten microservicios.
