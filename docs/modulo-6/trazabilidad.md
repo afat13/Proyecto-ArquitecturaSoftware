@@ -30,3 +30,10 @@
 - Se inspeccionaron los 20 JSON publicados y se retiró el campo `setup_data.tokens` de todos. El resto de las métricas se mantuvo en las versiones publicadas.
 - **Importante:** antes de esa corrección se publicaron tokens en commits previos. La modificación no elimina el historial; se deben revocar las sesiones de prueba y, si se requiere eliminar la exposición del historial, seguir el procedimiento de limpieza del repositorio coordinado con el equipo. No se declara ese control terminado.
 - El mini-comité 2, el veredicto del equipo en ADR-007 y la definición final de la fitness function siguen pendientes de decisión verificable.
+
+## Comparación posterior: paginación de Tareas
+
+- [Instrumento](../../experimentos/crecimiento-m6/comparar-paginacion.js) y [protocolo](../../experimentos/crecimiento-m6/02-comparacion-paginacion.md) en `main`.
+- [Análisis de ocho corridas](../../experimentos/crecimiento-m6/03-resultados-paginacion.md): 30 VUs, 60 segundos; mediana de p95 exclusiva de GET de 86,68 ms (1.000 tareas) y 15,92 ms (50 tareas), sin fallos funcionales registrados.
+- **Falta** publicar los ocho JSON y logs depurados desde el equipo que ejecutó la prueba; todavía no existe SHA de commit que los contenga.
+- Se conserva la diferencia entre pruebas de una solicitud y recuperación total de las 1.000 tareas. Android aún utiliza el endpoint anterior.
