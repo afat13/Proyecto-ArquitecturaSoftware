@@ -35,5 +35,5 @@
 
 - [Instrumento](../../experimentos/crecimiento-m6/comparar-paginacion.js) y [protocolo](../../experimentos/crecimiento-m6/02-comparacion-paginacion.md) en `main`.
 - [Análisis de ocho corridas](../../experimentos/crecimiento-m6/03-resultados-paginacion.md): 30 VUs, 60 segundos; mediana de p95 exclusiva de GET de 86,68 ms (1.000 tareas) y 15,92 ms (50 tareas), sin fallos funcionales registrados.
-- **Falta** publicar los ocho JSON y logs depurados desde el equipo que ejecutó la prueba; todavía no existe SHA de commit que los contenga.
+- **Publicado y verificado en `main`:** [8 JSON depurados y 6 logs](../../experimentos/crecimiento-m6/comparacion-paginacion/). Se confirmó ausencia de `setup_data.tokens` en los JSON actuales; faltan los dos logs de calentamiento (corrida 1).
 - Se conserva la diferencia entre pruebas de una solicitud y recuperación total de las 1.000 tareas. Android aún utiliza el endpoint anterior.
