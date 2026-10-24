@@ -1,35 +1,146 @@
 # ADR-007 — Distribución, costo y resiliencia en M6
 
-**Estado:** análisis con evidencia, **pendiente de decisión y mini-comité**. Correspondencia con «ADR 4» del sílabo, sin renumerar los anteriores.
+**Proyecto:** Aprende a Aprender  
+**Módulo:** 6 — Crecimiento, resiliencia y costos  
+**Estado:** Decisión confirmada por el equipo  
+**Fecha:** 23 de octubre de 2026  
+**Correspondencia:** «ADR 4» del sílabo, conservando la numeración del repositorio.
 
-## Contexto
+## Integrantes del equipo
 
-Aprende a Aprender ejecuta un backend Spring Boot con PostgreSQL. Tareas y Materias son fronteras lógicas dentro de la misma API y la creación de tareas usa una operación SQL local que comprueba la pertenencia de la materia.
+- Andrés Ardila
+- Valentina Silva Paez
+- Thomas Huerfano
 
-La prueba de crecimiento M6 ([análisis](../../experimentos/crecimiento-m6/01-analisis-20261023.md), commit medido `815c5df5`) incrementó concurrencia de 30 a 200 VUs. El p95 global pasó de 144,66 a 1.287,58 ms (medianas de tres corridas), sin checks fallidos. La tasa de GET/s se mantuvo cerca de 238–250. **No conocemos el componente limitante:** faltan medidas continuas y la submétrica de GET. No convertir esta observación en una atribución causal.
+## 1. Contexto
 
-## Alternativas y trade-offs
+Aprende a Aprender utiliza un backend desarrollado con Spring Boot y PostgreSQL. Los módulos de Tareas y Materias funcionan dentro de la misma API y comparten operaciones que pueden resolverse mediante transacciones locales.
 
-1. **Backend único con modularización y diagnóstico de capacidad:** menos infraestructura, transacciones locales y cambios acotados; sigue existiendo un despliegue compartido.
-2. **Escalar API horizontalmente:** posible capacidad adicional si la API limita; requiere balanceo, varias instancias y manejo de conexiones. PostgreSQL sigue siendo compartida.
-3. **Servicios independientes de Tareas y Materias:** autonomía potencial de despliegue y escalado; mayor costo operativo, consistencia y fallos parciales, sin justificación medida en esta prueba.
+Durante las pruebas de crecimiento del módulo 6 se evaluó el comportamiento del sistema con 30, 50, 100, 150 y 200 usuarios virtuales.
 
-Comparación detallada: [distribución y costo](../modulo-6/distribucion-costos.md), [fallos y resiliencia](../modulo-6/matrices.md) y [crítica de IA](../modulo-6/critica-ia.md).
+El p95 global aumentó de 144,66 ms a 1.287,58 ms, mientras que la cantidad de consultas procesadas por segundo permaneció aproximadamente entre 238 y 250.
 
-## Propuesta de revisión (no decisión aprobada)
+No se presentaron errores funcionales, pero los resultados evidenciaron una degradación del tiempo de respuesta.
 
-Antes de migrar a servicios, medir por separado las consultas y el uso de recursos durante carga. Evaluar el plan SQL, límites de concurrencia y escalado del backend con pruebas comparables. Reconsiderar la distribución cuando se identifique un recurso limitante, haya necesidad real de despliegues separados o cambien restricciones del equipo.
+El problema se estudió posteriormente en el módulo de Tareas, donde el endpoint `GET /api/tasks` devolvía 1.000 tareas por usuario en una sola solicitud.
 
-**Consecuencia positiva potencial:** evita infraestructura no justificada y permite decisiones graduales. **Consecuencia negativa potencial:** si el límite exige aislamiento real, aplaza esa mejora. **Reversibilidad:** se conserva la API actual; se pueden extraer módulos con contratos y pruebas después, asumiendo costo de migración.
+## 2. Alternativas consideradas
 
-## Decisión de equipo
+### Alternativa A: Mantener la arquitectura actual y optimizar Tareas
 
-**Pendiente de deliberación.** Registrar alternativa elegida y descartadas, justificación a partir de resultados, costos operativos relativos, supuesto clave, condición exacta de revisión y responsables. No confundir «propuesta de revisión» con un ADR aceptado.
+Conservar Spring Boot y PostgreSQL, aplicando mejoras progresivas como paginación, filtros y optimización de consultas.
 
-## Mini-comité 2
+Esta alternativa permite reducir el procesamiento innecesario sin aumentar significativamente la complejidad de la infraestructura.
 
-**Pendiente:** fecha, asistentes, preguntas, objeciones, cambios y veredicto (confirmada / ajustada / reconsiderada). No hay acta verificable todavía.
+### Alternativa B: Escalar horizontalmente Spring Boot
 
-## Fitness function
+Ejecutar varias instancias de la API detrás de un balanceador.
 
-[Definición y comprobación](../modulo-6/fitness-function.md): seleccionar propiedad una vez aprobada la decisión y demostrar violación en CI; no afirmar implementación sin evidencia.
+Podría aumentar la capacidad si el procesamiento de Spring Boot fuera el principal factor limitante, pero requeriría infraestructura adicional y no necesariamente resolvería problemas de PostgreSQL.
+
+### Alternativa C: Extraer Tareas como microservicio
+
+Separar el módulo de Tareas para permitir despliegues y escalado independientes.
+
+Su principal desventaja sería introducir mayor complejidad operativa, comunicaciones entre servicios y mecanismos adicionales para mantener la consistencia de los datos.
+
+## 3. Evidencia experimental
+
+Se implementó un endpoint paginado adicional y se realizaron pruebas comparativas con 30 usuarios virtuales durante 60 segundos.
+
+Se ejecutaron cuatro corridas por modalidad, utilizando la primera como calentamiento.
+
+| Métrica | Consulta original | Consulta paginada |
+|---|---:|---:|
+| Registros por respuesta | 1.000 | 50 |
+| Mediana del p95 de GET | 86,68 ms | 15,93 ms |
+| Consultas por segundo | 391,55 | 3.086,81 |
+| Errores HTTP | 0 | 0 |
+
+La consulta paginada presentó una reducción aproximada del **81,6 % en la latencia p95 por solicitud**.
+
+Estos resultados favorecen el uso de paginación cuando la aplicación necesita consultar únicamente una parte de las tareas.
+
+Sin embargo, la comparación no demuestra que recuperar las 1.000 tareas mediante 20 solicitudes sea más eficiente. Tampoco identifica de manera definitiva el principal cuello de botella del sistema.
+
+## 4. Decisión arquitectónica
+
+**El equipo decidió adoptar la alternativa A: mantener la arquitectura actual y optimizar progresivamente el módulo de Tareas.**
+
+La decisión se fundamenta en que las pruebas realizadas muestran una mejora considerable del tiempo de respuesta al reducir la cantidad de registros por solicitud, sin necesidad de introducir microservicios.
+
+En este momento no existe evidencia suficiente para justificar el costo adicional de distribuir el módulo de Tareas.
+
+Por ello, el equipo prioriza mejorar las consultas, implementar mecanismos de paginación y evaluar nuevas optimizaciones antes de modificar la distribución del backend.
+
+## 5. Mini-comité 2 — Objeciones y respuestas
+
+**Objeción 1: ¿La paginación realmente resuelve el problema?**
+
+La paginación disminuye el tiempo de respuesta por solicitud, pero todavía no demuestra que se haya eliminado el cuello de botella. Se necesitan nuevas pruebas para evaluar otros escenarios y niveles de concurrencia.
+
+**Objeción 2: ¿Qué sucede si el estudiante necesita todas sus tareas?**
+
+Se propone que Android solicite únicamente los datos necesarios para cada pantalla, utilizando filtros por fecha, materia y estado. Cuando se requieran más tareas, se podrán consultar páginas adicionales.
+
+**Objeción 3: ¿Mantener un backend único limita la escalabilidad?**
+
+Puede limitar el escalado independiente de módulos. Sin embargo, el equipo considera que introducir servicios distribuidos antes de identificar las limitaciones reales aumentaría la complejidad sin una justificación experimental suficiente.
+
+**Objeción 4: ¿Qué sucede si las optimizaciones no son suficientes?**
+
+El equipo realizará nuevas mediciones para identificar el recurso limitante y reconsiderará alternativas como optimización de PostgreSQL, escalado horizontal o separación de servicios.
+
+## 6. Consecuencias de la decisión
+
+**Consecuencias positivas**
+
+- Se mantiene una infraestructura menos compleja.
+- Se conservan las transacciones locales entre Tareas y Materias.
+- Las optimizaciones pueden implementarse y comprobarse progresivamente.
+- Se evita asumir costos de distribución que todavía no están justificados.
+
+**Consecuencias negativas y riesgos**
+
+- Spring Boot continúa siendo una unidad de despliegue compartida.
+- La paginación todavía requiere adaptación en Android.
+- Es necesario manejar correctamente los cambios de datos entre páginas.
+- La mejora aún no se ha evaluado con cargas superiores a 30 usuarios virtuales.
+
+## 7. Condiciones para revisar la decisión
+
+La decisión será reconsiderada cuando nuevas mediciones demuestren que las optimizaciones existentes no permiten satisfacer los requisitos de rendimiento, cuando un módulo necesite escalar de manera independiente o cuando las condiciones operativas justifiquen la distribución de servicios.
+
+Las nuevas alternativas deberán compararse experimentalmente antes de su adopción.
+
+## 8. Veredicto del mini-comité
+
+**Veredicto: confirmada la alternativa A.**
+
+El equipo acuerda conservar la arquitectura actual de Spring Boot y PostgreSQL y continuar optimizando el módulo de Tareas.
+
+La paginación constituye la primera optimización evaluada y demuestra una reducción significativa de la latencia por solicitud bajo las condiciones de prueba.
+
+No se considera justificada una migración inmediata a microservicios.
+
+La decisión queda sujeta a revisión cuando se disponga de nueva evidencia técnica que demuestre la necesidad de modificar la distribución del sistema.
+
+## 9. Fitness function
+
+**Estado: pendiente de selección e implementación.**
+
+Como siguiente actividad, el equipo deberá definir una propiedad arquitectónica verificable que respalde la decisión tomada.
+
+Una posibilidad es comprobar automáticamente que el endpoint paginado conserve el aislamiento de datos por usuario, respete los límites de página y mantenga un orden determinista.
+
+La propiedad definitiva deberá implementarse mediante pruebas automatizadas y verificarse en CI.
+
+## 10. Referencias de evidencia
+
+- [Preregistro](../../experimentos/crecimiento-m6/00-preregistro.md)
+- [Resultados de crecimiento](../../experimentos/crecimiento-m6/01-analisis-20261023.md)
+- [Análisis de paginación](../../experimentos/crecimiento-m6/03-resultados-paginacion.md)
+- [Evidencia depurada de paginación](../../experimentos/crecimiento-m6/comparacion-paginacion/)
+- [Comparación de costos](../modulo-6/distribucion-costos.md)
+- [Matrices de fallos y resiliencia](../modulo-6/matrices.md)
+- [Trazabilidad](../modulo-6/trazabilidad.md)
