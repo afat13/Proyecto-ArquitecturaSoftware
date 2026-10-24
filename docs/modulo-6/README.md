@@ -7,14 +7,14 @@ Los resultados registran latencia creciente y respuestas correctas. Con más car
 ## Evidencias
 
 - [Preregistro](../../experimentos/crecimiento-m6/00-preregistro.md): commit `007defa`, anterior a las pruebas.
-- [Ejecución y análisis de las 20 corridas](../../experimentos/crecimiento-m6/01-analisis-20261023.md): commit medido `815c5df5`. Los archivos originales siguen pendientes de subir desde la máquina donde se ejecutaron.
+- [Ejecución y análisis de las 20 corridas](../../experimentos/crecimiento-m6/01-analisis-20261023.md): commit medido `815c5df5`. Los 84 archivos del experimento de crecimiento están publicados en el repositorio, con los JSON actuales depurados de tokens de sesión.
 - [Matriz de fallos y resiliencia](matrices.md): separa degradación medida de hipótesis no confirmadas.
 - [Comparación de estilos y costos](distribucion-costos.md).
 - [Propuesta de IA y revisión](critica-ia.md).
-- [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md): análisis escrito; falta la decisión y el mini-comité.
+- [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md): alternativa A confirmada por el equipo; recoge el veredicto del mini-comité y sus límites experimentales.
 - [Fitness function](fitness-function.md): candidata definida, sin prueba automática todavía.
 - [Trazabilidad](trazabilidad.md): contiene lo disponible y lo pendiente.
 
 ## Para cerrar el módulo
 
-Subir los resultados originales a `/experimentos`, revisar la instrumentación y las limitaciones de máquina, decidir qué arquitectura conserva o cambia el equipo, registrar el veredicto del mini-comité y elegir la fitness function que realmente proteja la decisión. El código de producción no se cambió para estas pruebas.
+Los resultados de crecimiento y la comparación de paginación están publicados. El equipo confirmó mantener Spring Boot y PostgreSQL y optimizar Tareas. Queda seleccionar, implementar y validar una fitness function en CI. Se añadió un endpoint paginado en el backend, pero Android todavía usa el endpoint original; el código sí se modificó para el experimento.
