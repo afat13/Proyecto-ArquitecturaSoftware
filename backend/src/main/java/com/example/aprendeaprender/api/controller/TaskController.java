@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -52,6 +55,46 @@ public class TaskController {
                         rs.getObject("created_at", OffsetDateTime.class)))
                 .list();
     }
+
+
+    // Endpoint adicional para medir y adoptar paginación sin romper clientes actuales.
+    @GetMapping("/page")
+    public TaskPage page(Authentication auth,
+                         @RequestParam(defaultValue = "0") int page,
+                         @RequestParam(defaultValue = "50") int size) {
+        if (page < 0 || size < 1 || size > 100 || (long) page * size > Integer.MAX_VALUE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "page debe ser >= 0 y size debe estar entre 1 y 100");
+        }
+        UUID userId = UUID.fromString(auth.getName());
+        long offset = (long) page * size;
+        List<TaskResponse> items = jdbc.sql("""
+                SELECT t.id, t.subject_id, s.name AS subject_name, t.title, t.description,
+                       t.due_at, t.priority, t.status, t.created_at
+                FROM task t
+                JOIN subject s ON s.id = t.subject_id
+                WHERE t.user_id = :userId
+                ORDER BY t.due_at NULLS LAST, t.created_at DESC, t.id
+                LIMIT :size OFFSET :offset
+                """)
+                .param("userId", userId)
+                .param("size", size)
+                .param("offset", offset)
+                .query((rs, n) -> new TaskResponse(
+                        rs.getObject("id", UUID.class),
+                        rs.getObject("subject_id", UUID.class),
+                        rs.getString("subject_name"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getObject("due_at", OffsetDateTime.class),
+                        rs.getString("priority"),
+                        rs.getString("status"),
+                        rs.getObject("created_at", OffsetDateTime.class)))
+                .list();
+        return new TaskPage(items, page, size, items.size() == size);
+    }
+
+    public record TaskPage(List<TaskResponse> items, int page, int size, boolean mayHaveMore) {}
 
     @PostMapping
     @Transactional
