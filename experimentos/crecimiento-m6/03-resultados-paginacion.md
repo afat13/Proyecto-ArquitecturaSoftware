@@ -1,6 +1,6 @@
 # Resultados de la comparación de paginación — 30 VUs
 
-**Estado:** ocho JSON originales revisados y seis logs aportados. Se verificaron los resultados y se preparó una copia depurada sin `setup_data.tokens`. **La copia depurada todavía no está publicada en Git.** Los logs de las corridas 1 no se conservaron en el ZIP aportado.
+**Estado:** evidencia depurada publicada y verificada en `main`: ocho JSON y seis logs en [comparacion-paginacion/](comparacion-paginacion/). Los JSON no contienen `setup_data.tokens`; faltan los logs de calentamiento de la corrida 1, ejecutada por separado.
 
 Se compararon consultas del endpoint anterior `GET /api/tasks` (1.000 tareas) y del nuevo `GET /api/tasks/page?page=0&size=50` (50 tareas). Se usaron 30 VUs y 60 segundos por prueba; corrida 1 de calentamiento, corridas 2–4 medidas. Se mantuvieron las mismas cuentas de la semilla y el mismo backend en cada par según los comandos y logs aportados.
 
@@ -20,9 +20,7 @@ Los avisos `NativeCommandError` en PowerShell aparecen al pasar la salida inform
 
 ## Siguiente paso
 
-Revisar los archivos originales para excluir `setup_data.tokens` y otras credenciales **antes** de subirlos a GitHub; los tokens ya publicados en otras evidencias no se revocan al editar la última versión. Subir los resultados depurados en `experimentos/crecimiento-m6/comparacion-paginacion/` y dejar el SHA del commit de evidencia en la trazabilidad.
-
-El endpoint sigue siendo adicional: Android todavía llama al endpoint sin paginación. No registrar la mejora como desplegada para los estudiantes hasta adaptar cliente y pruebas.
+La evidencia cruda depurada está subida. Aún falta registrar el SHA exacto de la versión medida de backend y de k6, así como métricas continuas de recursos si se quiere atribuir el cuello de botella. Adaptar Android requiere una estrategia de filtros/consultas en el servidor para no dejar fuera tareas de hoy, vencidas y por materia; una primera página de 50 por sí sola sería incorrecta.
 
 ## Verificación del ZIP
 
@@ -30,4 +28,4 @@ El endpoint sigue siendo adicional: Android todavía llama al endpoint sin pagin
 - Se retiró el campo `setup_data.tokens` de los ocho JSON de la copia para publicar. Se comprobaron los seis logs y no se detectaron en ellos patrones evidentes de tokens o credenciales.
 - Totales del experimento: 90.584 GET originales y 724.189 GET paginados, todos con checks exitosos (0 fallidos); 1.629.546 checks correctos entre ambos modos.
 - Mediana de bytes recibidos por GET medida en corridas 2–4: aproximadamente 325 KB sin paginación y 16,6 KB con paginación.
-- Evidencia pendiente de publicación: subir únicamente la copia depurada, no el ZIP original. No declarar aprobación del ADR por este ensayo.
+- Evidencia depurada publicada en el repositorio; verificada la ausencia de `setup_data.tokens` en los ocho JSON de `main`. No declarar aprobación del ADR por este ensayo.
