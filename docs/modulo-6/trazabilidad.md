@@ -17,7 +17,7 @@
 | Matrices de fallos y resiliencia | [Matrices](matrices.md) — degradación observada; causas no determinadas |
 | Comparativa de distribución/costo | [Comparación de alternativas](distribucion-costos.md) — costos relativos documentados; veredicto de alternativa A en ADR-007 |
 | ADR M6 + mini-comité | [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md) — alternativa A confirmada por el equipo; veredicto del mini-comité documentado |
-| Fitness definida, verde-rojo-verde | [Fitness candidata](fitness-function.md) — sin implementar ni validar |
+| Fitness definida, verde-rojo-verde | [Fitness function implementada](fitness-function.md) — prueba de integración añadida; CI y demostración verde-rojo-verde aún por verificar |
 | Defensa individual | PENDIENTE: cada participante debe demostrar hechos frente a inferencias y la revisión bajo nuevas restricciones |
 
 **Regla:** no confundir «hay archivo» con «el entregable está verificado». Cada afirmación experimental debe tener SHA, condiciones, datos crudos y evaluación de validez.
@@ -29,7 +29,7 @@
 - Los 84 archivos del experimento están en [`resultados/20261023T215759Z-815c5df5/`](../../experimentos/crecimiento-m6/resultados/20261023T215759Z-815c5df5/).
 - Se inspeccionaron los 20 JSON publicados y se retiró el campo `setup_data.tokens` de todos. El resto de las métricas se mantuvo en las versiones publicadas.
 - **Importante:** antes de esa corrección se publicaron tokens en commits previos. La modificación no elimina el historial; se deben revocar las sesiones de prueba y, si se requiere eliminar la exposición del historial, seguir el procedimiento de limpieza del repositorio coordinado con el equipo. No se declara ese control terminado.
-- El veredicto del equipo (alternativa A) quedó registrado en ADR-007; la definición final y verificación de la fitness function siguen pendientes.
+- El veredicto del equipo (alternativa A) quedó registrado en ADR-007; la fitness function de aislamiento, tamaño y orden de páginas quedó implementada; pendientes resultado de CI y evidencia verde-rojo-verde.
 
 ## Comparación posterior: paginación de Tareas
 
