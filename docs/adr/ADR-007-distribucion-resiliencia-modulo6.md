@@ -127,13 +127,13 @@ La decisión queda sujeta a revisión cuando se disponga de nueva evidencia téc
 
 ## 9. Fitness function
 
-**Estado: pendiente de selección e implementación.**
+**Estado: seleccionada e implementada; validación de CI y evidencia verde–rojo–verde pendientes.**
 
-Como siguiente actividad, el equipo deberá definir una propiedad arquitectónica verificable que respalde la decisión tomada.
+Se eligió proteger la lectura paginada del módulo de Tareas: aislamiento entre usuarios, límites de tamaño de página y orden determinista para datos sin modificaciones concurrentes.
 
-Una posibilidad es comprobar automáticamente que el endpoint paginado conserve el aislamiento de datos por usuario, respete los límites de página y mantenga un orden determinista.
+La clase [`TaskPaginationFitnessTest`](../../backend/src/test/java/com/example/aprendeaprender/api/TaskPaginationFitnessTest.java) ejerce estas reglas mediante peticiones HTTP de prueba contra PostgreSQL. Se ejecuta como parte del job de backend de GitHub Actions (`gradle -p backend test --no-daemon`).
 
-La propiedad definitiva deberá implementarse mediante pruebas automatizadas y verificarse en CI.
+[Protocolo de verificación y limitaciones](../modulo-6/fitness-function.md). No se considera cerrada la demostración verde–rojo–verde hasta contar con las salidas reales.
 
 ## 10. Referencias de evidencia
 
