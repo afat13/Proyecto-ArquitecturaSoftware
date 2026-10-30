@@ -1,19 +1,45 @@
-# Fitness function del Módulo 6
+# Fitness function — Módulo 6
 
-El resultado de crecimiento todavía no permite saber cuál componente limita primero. La propiedad que convenga proteger debe venir de la decisión final del [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md), no de un test añadido solo para cumplir.
+**Decisión protegida:** [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md): mantener el backend Spring Boot + PostgreSQL y optimizar Tareas sin distribuir prematuramente sus responsabilidades.
 
-## Definición candidata para discutir con el equipo
+## Propiedad arquitectónica
 
-**Decisión candidata:** mantener Tareas y Materias como responsabilidades lógicas dentro del mismo backend hasta que la evidencia justifique extraer un servicio.
+La lectura paginada de Tareas debe conservar el aislamiento entre usuarios, limitar cada respuesta a un máximo de 100 tareas y mantener orden determinista entre páginas para una base de datos sin modificaciones concurrentes.
 
-**Propiedad a proteger:** las dependencias de la capa de API deben seguir pasando por los componentes del backend y no incorporar conexiones directas desde Android a PostgreSQL.
+**Implementación:** [`TaskPaginationFitnessTest`](../../backend/src/test/java/com/example/aprendeaprender/api/TaskPaginationFitnessTest.java), prueba de integración HTTP con MockMvc y PostgreSQL real, datos creados en cada prueba y transacción de prueba revertida al finalizar.
 
-**Regla automatizable propuesta:** verificar que el módulo Android no declare el driver JDBC de PostgreSQL ni una URL de conexión JDBC en su código. Es una regla sobre una frontera existente y puede comprobarse automáticamente, pero **no demuestra** la modularidad entre Tareas y Materias.
+Reglas verificadas:
 
-**Vínculo al ADR:** [ADR-007](../adr/ADR-007-distribucion-resiliencia-modulo6.md); formalizar esta elección cuando el equipo apruebe una decisión.
+1. Un usuario A no recibe tareas de B, y viceversa.
+2. `size=1` responde un único registro; `size=0`, `size>100`, `page<0` y desbordamientos del desplazamiento se rechazan con HTTP 400.
+3. En una base de datos estática, `page=0` y `page=1` con tamaño 1 devuelven tareas diferentes en orden completo (desempate por ID); una página posterior queda vacía.
+4. Una petición sin credenciales no puede consultar tareas.
 
-**Prueba negativa:** introducir temporalmente una dependencia JDBC en el build Android en un entorno controlado y comprobar que CI la rechace; revertir el cambio. No crear evidencia de fallo ficticia ni dejar la violación en `main`.
+**No garantiza:** consistencia de páginas si se insertan o eliminan tareas entre solicitudes, rendimiento mínimo p95, ni que Android use este endpoint. El campo `mayHaveMore` indica una página llena, no confirma páginas posteriores.
 
-## Estado
+## CI
 
-Fitness **candidata definida para revisión**, no implementada. El sílabo admite su implementación definitiva hasta semana 14. Registrar SHA de test verde, ejecución roja controlada y recuperación verde cuando se implemente.
+El job de backend de [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) ya ejecuta `gradle -p backend test --no-daemon` en JDK 21 con PostgreSQL 16. La clase nueva forma parte de ese comando, por lo que no se necesita un segundo workflow.
+
+Localmente con PostgreSQL levantado y accesible según `DB_URL`:
+
+```powershell
+gradle -p backend test --tests "com.example.aprendeaprender.api.TaskPaginationFitnessTest" --no-daemon
+```
+
+El resultado en CI debe revisarse en [Actions](https://github.com/afat13/Proyecto-ArquitecturaSoftware/actions/workflows/ci.yml). No afirmar resultado verde sin verificar una ejecución asociada al commit correcto. El pipeline también compila Android: una falla de Android es independiente de estas pruebas de backend.
+
+## Demostración verde–rojo–verde (pendiente de evidencia)
+
+**Protocolo, no resultados observados.** Para evitar dejar un fallo en `main`, realizar en una copia local temporal, sin crear rama:
+
+1. **Verde inicial:** guardar SHA y salida de `gradle -p backend test --tests "com.example.aprendeaprender.api.TaskPaginationFitnessTest" --no-daemon`.
+2. **Rojo:** sobre la copia, modificar **solo** la consulta paginada del controlador: quitar temporalmente `WHERE t.user_id = :userId` y la llamada a `.param("userId", userId)` correspondiente. Volver a ejecutar. La prueba `cadaUsuarioSoloVeSusPropiasTareas` debería fallar porque devuelve también las tareas de otro usuario. No subir esta versión.
+3. **Verde final:** restaurar el archivo original desde Git y repetir la prueba. Guardar salidas y SHA del código correcto.
+
+Precaución: la consulta original `GET /api/tasks` y las operaciones de creación/sincronización no se modifican para esta prueba; no eliminar filtros de seguridad fuera de la copia temporal. Es necesario documentar los tres resultados reales antes de cerrar M6.
+
+## Evidencias de rendimiento separadas
+
+- [Pruebas de crecimiento](../../experimentos/crecimiento-m6/01-analisis-20261023.md).
+- [Comparación de paginación](../../experimentos/crecimiento-m6/03-resultados-paginacion.md): mediana de p95 por GET, 86,68 ms para 1.000 tareas y 15,93 ms para 50 tareas en 30 VUs. No confundir esto con el resultado de la fitness function.
