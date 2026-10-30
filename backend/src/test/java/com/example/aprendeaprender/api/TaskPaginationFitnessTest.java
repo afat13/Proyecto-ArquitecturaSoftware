@@ -44,8 +44,10 @@ class TaskPaginationFitnessTest {
         bob = UUID.randomUUID();
         aliceSubject = UUID.randomUUID();
         bobSubject = UUID.randomUUID();
-        firstTask = UUID.randomUUID();
-        secondTask = UUID.randomUUID();
+        // Dos UUID consecutivos, no dependemos del orden firmado de UUID en Java.
+        long suffix = java.util.concurrent.ThreadLocalRandom.current().nextLong(1L, Long.MAX_VALUE - 1);
+        firstTask = new UUID(0L, suffix);
+        secondTask = new UUID(0L, suffix + 1);
         bobTask = UUID.randomUUID();
 
         insertUser(alice);
