@@ -2,7 +2,7 @@
 
 **Proyecto:** Aprende a Aprender  
 **Fecha:** 6 de noviembre de 2026  
-**Estado:** análisis y protocolo preparados; simulación de caída y recuperación de API pendiente de ejecución local  
+**Estado:** simulación local de caída y recuperación manual de API comprobada; recuperación de datos y autorrecuperación pendientes  
 **Alcance:** laboratorio Docker Compose; no representa disponibilidad de producción.
 
 ## 1. Situación de partida
@@ -53,11 +53,30 @@ La priorización provisional es **alta** para O2, O3, O4 y O6; **media** para O1
 - El contenedor `db` permanece saludable. No deben perderse las 5.000 cuentas de la semilla experimental.
 - Guardar terminal y métricas con marcas de tiempo. Un restart manual exitoso **no equivale a failover ni autorrecuperación automática**.
 
-## 5. Recuperación de datos (diseño, aún no validado)
+## 5. Ejecución real del escenario de API — 6 de noviembre de 2026
+
+El experimento se realizó con el servicio `api` y la observabilidad desplegados en Docker Compose. La primera comprobación se registró a las **18:45:46 (America/Bogota)** con PostgreSQL saludable y `up{job="backend"}=1`. No se ejecutaba carga k6 durante la interrupción.
+
+| Etapa | Acción y resultado observado |
+| --- | --- |
+| Estado inicial | `api` y `db` saludables; Prometheus registró `backend: 1` |
+| Caída manual | `docker compose ... stop api` detuvo solo la API; Prometheus registró `backend: 0` |
+| Inicio manual | `docker compose ... start api` inició la API; el primer `ps` mostró `health: starting` |
+| Recuperación comprobada | `curl http://localhost:8081/actuator/health` devolvió `{"status":"UP","groups":["liveness","readiness"]}` |
+| Captura de disponibilidad | Una nueva consulta a Prometheus devolvió `backend: 1` y las capturas de Grafana muestran la interrupción entre intervalos disponibles |
+| Control de acceso | `GET http://localhost:8080/api/tasks` sin autenticación devolvió HTTP 403, coherente con la configuración de seguridad |
+| Verificación final | Hora de la comprobación: **18:47:53 (America/Bogota)**; PostgreSQL no fue detenido |
+
+**Interpretación:** en el laboratorio se pudo recuperar manualmente la API y Prometheus registró correctamente pérdida y regreso del objetivo. Las verificaciones no constituyen una prueba de autorrecuperación, alta disponibilidad ni tolerancia a fallos simultáneos. La duración desde la caída hasta el restablecimiento de la disponibilidad no se midió con marcas de tiempo de cada transición; **no se declara RTO medido**. Tampoco se comprobó una restauración de respaldo ni un RPO.
+
+La captura de Grafana es evidencia visual proporcionada durante la ejecución; sus PNG originales aún no están versionados. El resultado de una ruta protegida que responde 403 solo comprueba que la API vuelve a aplicar autenticación, no que todas las operaciones de negocio estén correctas.
+
+## 6. Recuperación de datos (diseño, aún no validado)
+
 
 Se propone realizar `pg_dump` de la base en un entorno aislado, revisar el archivo resultante y ensayar `pg_restore` sobre **otra base de pruebas**, comprobando tablas, migraciones Flyway y conteos. No se ha ejecutado todavía ese procedimiento. El volumen Docker **no constituye una copia de seguridad**. Nunca ejecutar una restauración sobre `aprende_aprender` sin confirmar consecuencias.
 
-## 6. Próximas decisiones
+## 7. Próximas decisiones
 
 No aumentar todavía el pool por el solo hecho de ver pendientes. Priorizar medir consultas lentas, uso del generador y percentiles separados por operación. Mantener la decisión del ADR-007 sobre optimizaciones progresivas. Antes de exponer el sistema públicamente deberán definirse TLS, secretos, respaldo probado y restricción de la red de base de datos.
 
