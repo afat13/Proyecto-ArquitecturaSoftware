@@ -106,7 +106,7 @@ La evidencia procede del experimento registrado en `docs/modulo-7/05-riesgos-ope
 
 ```mermaid
 flowchart LR
-    Device[Dispositivo Android] -->|HTTP REST puerto 8080| Host[Equipo de laboratorio Docker]
+    Device[Dispositivo Android] -->|HTTP REST puerto 8080| API
     subgraph Host[Equipo local con Docker Compose]
         API[Contenedor api Spring Boot :8080 y :8081]
         DB[(Contenedor db PostgreSQL :5432)]
