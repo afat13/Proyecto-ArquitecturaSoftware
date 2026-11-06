@@ -27,7 +27,7 @@
   },
   "refresh": "10s",
   "schemaVersion": 39,
-  "version": 2,
+  "version": 3,
   "annotations": {
     "list": [
       {
@@ -94,7 +94,7 @@
     },
     {
       "id": 2,
-      "title": "Peticiones HTTP — req/s",
+      "title": "GET de tareas correctos — req/s",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
@@ -109,7 +109,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(rate(http_server_requests_seconds_count{job=\"backend\"}[2m]))",
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"backend\",method=\"GET\",uri=\"/api/tasks\",status=\"200\"}[30s]))",
           "legendFormat": "",
           "range": true,
           "datasource": {
@@ -148,7 +148,7 @@
     },
     {
       "id": 3,
-      "title": "Latencia HTTP p95 — servidor",
+      "title": "GET de tareas — p95 del servidor",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
@@ -163,7 +163,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "1000 * histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"backend\"}[2m])))",
+          "expr": "1000 * histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job=\"backend\",method=\"GET\",uri=\"/api/tasks\",status=\"200\"}[30s])))",
           "legendFormat": "",
           "range": true,
           "datasource": {
@@ -202,7 +202,7 @@
     },
     {
       "id": 4,
-      "title": "Respuestas por código HTTP",
+      "title": "Respuestas HTTP por código — todas las rutas",
       "type": "timeseries",
       "gridPos": {
         "h": 9,
@@ -217,7 +217,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (status) (rate(http_server_requests_seconds_count{job=\"backend\"}[2m]))",
+          "expr": "sum by (status) (rate(http_server_requests_seconds_count{job=\"backend\"}[30s]))",
           "legendFormat": "HTTP {{status}}",
           "range": true,
           "datasource": {
@@ -482,7 +482,7 @@
     },
     {
       "id": 9,
-      "title": "Eventos HTTP acumulados",
+      "title": "Respuestas HTTP acumuladas por código",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
