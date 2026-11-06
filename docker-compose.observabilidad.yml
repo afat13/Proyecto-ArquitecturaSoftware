@@ -1,0 +1,42 @@
+# Laboratorio de observabilidad. Usar junto con docker-compose.yml.
+services:
+  api:
+    environment:
+      MANAGEMENT_SERVER_PORT: "8081"
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics,prometheus"
+      APP_OBSERVABILITY_ENABLED: "true"
+      APP_OBSERVABILITY_PORT: "8081"
+    # Actuator se mueve al puerto 8081 dentro de Docker.
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./observabilidad/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Configurar GRAFANA_ADMIN_PASSWORD en el .env local}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observabilidad/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana_data:
