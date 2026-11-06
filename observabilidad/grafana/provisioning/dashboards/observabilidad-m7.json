@@ -27,7 +27,7 @@
   },
   "refresh": "10s",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "annotations": {
     "list": [
       {
@@ -325,8 +325,18 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "hikaricp_connections_pending{job=\"backend\"} or hikaricp_connections_max{job=\"backend\"}",
-          "legendFormat": "{{__name__}}",
+          "expr": "hikaricp_connections_pending{job=\"backend\"}",
+          "legendFormat": "Pendientes",
+          "range": true,
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "refId": "B",
+          "expr": "hikaricp_connections_max{job=\"backend\"}",
+          "legendFormat": "Máximo",
           "range": true,
           "datasource": {
             "type": "prometheus",
