@@ -1,6 +1,7 @@
 package com.example.aprendeaprender.api.config;
 
 import com.example.aprendeaprender.api.auth.TokenAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,12 +19,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, TokenAuthenticationFilter filter) throws Exception {
+    SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            TokenAuthenticationFilter filter,
+            @Value("${app.observability.enabled:false}") boolean observabilityEnabled,
+            @Value("${app.observability.port:8081}") int observabilityPort) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/actuator/health", "/actuator/info").permitAll()
+                        // Solo admite la captura de Prometheus en el puerto interno de observabilidad.
+                        .requestMatchers(request -> observabilityEnabled
+                                && request.getLocalPort() == observabilityPort
+                                && request.getRequestURI().equals("/actuator/prometheus")).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
                 .build();
