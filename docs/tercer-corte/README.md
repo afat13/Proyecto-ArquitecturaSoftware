@@ -60,7 +60,7 @@ La observabilidad se implementó porque las mediciones originales de k6 no expli
 
 **Pendientes documentales/experimentales:**
 
-- Publicar los PNG originales de Grafana junto con fecha y consulta/intervalo de cada panel. Las capturas compartidas respaldan el análisis, pero aún no están versionadas.
+- **Completado:** se publicaron [16 PNG originales de Grafana](../modulo-7/evidencias/grafana/README.md), organizados por etapa y con notas de interpretación. Para reproducibilidad completa todavía faltan exportaciones de series y configuración de intervalos de cada análisis.
 - Actualizar las notas antiguas del M6 que todavía dicen que la fitness function y el CI están pendientes: el presente dossier registra el estado posterior.
 - Spike 1 de la frontera Tareas–Materias del M5: preregistro, ejecución, datos crudos y decisión siguen pendientes; no simular resultados.
 - Recuperación automática, failover, RTO/RPO y comparación controlada de cambio del pool no demostrados.

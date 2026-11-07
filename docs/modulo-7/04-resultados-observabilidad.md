@@ -31,7 +31,7 @@ Todos los checks del script confirmaron HTTP 200 y la presencia de 1.000 tareas 
 
 ## Observaciones en Grafana
 
-En las capturas de la ejecución se observaron:
+En las [capturas originales de Grafana versionadas](evidencias/grafana/README.md) se observaron:
 
 - Objetivo `backend` disponible (serie `up = 1`).
 - Respuestas HTTP 200 durante la carga, con tasas puntuales próximas a 168 req/s en la visualización. La consulta del panel aún aparecía con una ventana de dos minutos, por lo que esta tasa no equivale a la media de GET/s registrada por k6.

@@ -69,7 +69,7 @@ El experimento se realizó con el servicio `api` y la observabilidad desplegados
 
 **Interpretación:** en el laboratorio se pudo recuperar manualmente la API y Prometheus registró correctamente pérdida y regreso del objetivo. Las verificaciones no constituyen una prueba de autorrecuperación, alta disponibilidad ni tolerancia a fallos simultáneos. La duración desde la caída hasta el restablecimiento de la disponibilidad no se midió con marcas de tiempo de cada transición; **no se declara RTO medido**. Tampoco se comprobó una restauración de respaldo ni un RPO.
 
-La captura de Grafana es evidencia visual proporcionada durante la ejecución; sus PNG originales aún no están versionados. El resultado de una ruta protegida que responde 403 solo comprueba que la API vuelve a aplicar autenticación, no que todas las operaciones de negocio estén correctas.
+Las [capturas originales de Grafana](evidencias/grafana/README.md) quedaron versionadas en el repositorio; incluyen la discontinuidad de disponibilidad durante la interrupción. El resultado de una ruta protegida que responde 403 solo comprueba que la API vuelve a aplicar autenticación, no que todas las operaciones de negocio estén correctas.
 
 ## 6. Recuperación de datos (diseño, aún no validado)
 
